@@ -39,8 +39,8 @@ const SecurityModule = () => {
   const [newIncident, setNewIncident] = useState({
     title: '',
     description: '',
-    type: 'physical' as const,
-    severity: 'medium' as const
+    type: 'physical' as SecurityIncident['type'],
+    severity: 'medium' as SecurityIncident['severity']
   });
 
   const handleAddIncident = () => {

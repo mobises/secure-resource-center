@@ -29,7 +29,7 @@ const UserManagement = () => {
   const [newUser, setNewUser] = useState({
     name: '',
     email: '',
-    role: 'user' as const,
+    role: 'user' as User['role'],
     permissions: [] as string[]
   });
 

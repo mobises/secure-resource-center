@@ -39,8 +39,8 @@ const ItModule = () => {
   const [newRequest, setNewRequest] = useState({
     title: '',
     description: '',
-    category: 'hardware' as const,
-    priority: 'medium' as const
+    category: 'hardware' as ItRequest['category'],
+    priority: 'medium' as ItRequest['priority']
   });
 
   const handleAddRequest = () => {
