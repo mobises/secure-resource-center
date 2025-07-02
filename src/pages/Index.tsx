@@ -1,13 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import Login from '@/components/Login';
+import Layout from '@/components/Layout';
+import Dashboard from '@/components/Dashboard';
+import ModuleRenderer from '@/components/ModuleRenderer';
 
 const Index = () => {
+  const { user, login, logout } = useAuth();
+  const [currentModule, setCurrentModule] = useState<string>('dashboard');
+
+  if (!user) {
+    return <Login onLogin={login} />;
+  }
+
+  const renderContent = () => {
+    if (currentModule === 'dashboard') {
+      return <Dashboard />;
+    }
+    return <ModuleRenderer module={currentModule} />;
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <Layout 
+      user={user} 
+      onLogout={logout}
+      currentModule={currentModule}
+      onModuleChange={setCurrentModule}
+    >
+      {renderContent()}
+    </Layout>
   );
 };
 
