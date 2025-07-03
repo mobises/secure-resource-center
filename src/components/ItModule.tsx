@@ -2,17 +2,16 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Computer, Users, Package, Wrench, Calendar, Shield, Car } from "lucide-react";
+import { Computer, Users, Package, Wrench, Calendar, Car } from "lucide-react";
 import { SectionUser } from "@/types";
 import SectionUserManagement from './SectionUserManagement';
 import StockControl from './StockControl';
 import MaintenanceControl from './MaintenanceControl';
 import RoomBookingControl from './RoomBookingControl';
-import SecurityReportsControl from './SecurityReportsControl';
 import VehicleBookingControl from './VehicleBookingControl';
 
 const ItModule = () => {
-  const [activeTab, setActiveTab] = useState<'users' | 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'stock' | 'maintenance' | 'rooms' | 'vehicles'>('users');
   const [sectionUsers, setSectionUsers] = useState<SectionUser[]>([
     {
       id: '1',
@@ -76,7 +75,6 @@ const ItModule = () => {
     { id: 'stock' as const, name: 'Control de Stock', icon: Package, access: hasAccess('stock') },
     { id: 'maintenance' as const, name: 'Mantenimiento', icon: Wrench, access: hasAccess('maintenance') },
     { id: 'rooms' as const, name: 'Reserva de Salas', icon: Calendar, access: hasAccess('rooms') },
-    { id: 'security' as const, name: 'Seguridad', icon: Shield, access: hasAccess('security') },
     { id: 'vehicles' as const, name: 'Reserva de Vehículos', icon: Car, access: hasAccess('vehicles') }
   ].filter(tab => tab.always || tab.access);
 
@@ -131,13 +129,6 @@ const ItModule = () => {
             <RoomBookingControl 
               currentUser={currentUser}
               isAdmin={isAdmin('rooms')}
-            />
-          )}
-
-          {activeTab === 'security' && hasAccess('security') && (
-            <SecurityReportsControl 
-              currentUser={currentUser}
-              isAdmin={isAdmin('security')}
             />
           )}
 

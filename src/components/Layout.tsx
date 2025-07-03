@@ -4,7 +4,6 @@ import { User } from '@/types';
 import { Button } from "@/components/ui/button";
 import { 
   Home, 
-  Users, 
   Calendar, 
   Computer, 
   Shield, 
@@ -34,11 +33,10 @@ const Layout: React.FC<LayoutProps> = ({
 
   const modules = [
     { id: 'dashboard', name: 'Dashboard', icon: Home },
-    { id: 'users', name: 'Usuarios', icon: Users },
-    { id: 'rooms', name: 'Salas', icon: Calendar },
+    { id: 'room-booking', name: 'Reserva de Salas', icon: Calendar },
     { id: 'it', name: 'IT', icon: Computer },
     { id: 'security', name: 'Seguridad', icon: Shield },
-    { id: 'vehicles', name: 'Vehículos', icon: Car },
+    { id: 'vehicle-booking', name: 'Reserva de Vehículos', icon: Car },
   ];
 
   const handleModuleClick = (moduleId: string) => {
