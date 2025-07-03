@@ -100,3 +100,50 @@ export interface Module {
   description: string;
   permissions: string[];
 }
+
+// Nuevos tipos para el sistema IT mejorado
+export interface SectionUser {
+  id: string;
+  name: string;
+  email: string;
+  sectionRoles: {
+    stock: 'admin' | 'user' | null;
+    maintenance: 'admin' | 'user' | null;
+  };
+  sectionAccess: {
+    stock: boolean;
+    maintenance: boolean;
+  };
+}
+
+export interface DeviceType {
+  id: string;
+  name: string;
+  category: string;
+}
+
+export interface StockMovement {
+  id: string;
+  deviceTypeId: string;
+  deviceTypeName: string;
+  movementType: 'alta' | 'baja';
+  units: number;
+  date: string;
+  recipientId?: string;
+  recipientName?: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface MaintenanceEquipment {
+  id: string;
+  name: string;
+  deviceType: string;
+  serialNumber: string;
+  lastMaintenance: string;
+  nextMaintenance: string;
+  status: 'operativo' | 'mantenimiento' | 'averiado';
+  location: string;
+  createdBy: string;
+  createdAt: string;
+}
