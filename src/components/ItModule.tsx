@@ -2,39 +2,56 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Computer, Users, Package, Wrench } from "lucide-react";
+import { Computer, Users, Package, Wrench, Calendar, Shield, Car } from "lucide-react";
 import { SectionUser } from "@/types";
 import SectionUserManagement from './SectionUserManagement';
 import StockControl from './StockControl';
 import MaintenanceControl from './MaintenanceControl';
+import RoomBookingControl from './RoomBookingControl';
+import SecurityReportsControl from './SecurityReportsControl';
+import VehicleBookingControl from './VehicleBookingControl';
 
 const ItModule = () => {
-  const [activeTab, setActiveTab] = useState<'users' | 'stock' | 'maintenance'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles'>('users');
   const [sectionUsers, setSectionUsers] = useState<SectionUser[]>([
     {
       id: '1',
       name: 'Admin IT',
-      email: 'admin@empresa.com',
+      userId: 'admin001',
+      password: '12345',
       sectionRoles: {
         stock: 'admin',
-        maintenance: 'admin'
+        maintenance: 'admin',
+        rooms: 'admin',
+        security: 'admin',
+        vehicles: 'admin'
       },
       sectionAccess: {
         stock: true,
-        maintenance: true
+        maintenance: true,
+        rooms: true,
+        security: true,
+        vehicles: true
       }
     },
     {
       id: '2',
       name: 'Usuario Normal',
-      email: 'user@empresa.com',
+      userId: 'user001',
+      password: '12345',
       sectionRoles: {
         stock: 'user',
-        maintenance: null
+        maintenance: null,
+        rooms: 'user',
+        security: null,
+        vehicles: 'user'
       },
       sectionAccess: {
         stock: true,
-        maintenance: false
+        maintenance: false,
+        rooms: true,
+        security: false,
+        vehicles: true
       }
     }
   ]);
@@ -42,22 +59,25 @@ const ItModule = () => {
   // Usuario actual simulado (en un caso real vendría del contexto de autenticación)
   const currentUser = sectionUsers[0]; // Simulamos que es el admin
   
-  const getUserRole = (section: 'stock' | 'maintenance') => {
+  const getUserRole = (section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles') => {
     return currentUser.sectionRoles[section];
   };
 
-  const isAdmin = (section: 'stock' | 'maintenance') => {
+  const isAdmin = (section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles') => {
     return getUserRole(section) === 'admin';
   };
 
-  const hasAccess = (section: 'stock' | 'maintenance') => {
+  const hasAccess = (section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles') => {
     return currentUser.sectionAccess[section];
   };
 
   const availableTabs = [
     { id: 'users' as const, name: 'Gestión de Usuarios', icon: Users, always: true },
     { id: 'stock' as const, name: 'Control de Stock', icon: Package, access: hasAccess('stock') },
-    { id: 'maintenance' as const, name: 'Mantenimiento', icon: Wrench, access: hasAccess('maintenance') }
+    { id: 'maintenance' as const, name: 'Mantenimiento', icon: Wrench, access: hasAccess('maintenance') },
+    { id: 'rooms' as const, name: 'Reserva de Salas', icon: Calendar, access: hasAccess('rooms') },
+    { id: 'security' as const, name: 'Seguridad', icon: Shield, access: hasAccess('security') },
+    { id: 'vehicles' as const, name: 'Reserva de Vehículos', icon: Car, access: hasAccess('vehicles') }
   ].filter(tab => tab.always || tab.access);
 
   return (
@@ -104,6 +124,27 @@ const ItModule = () => {
             <MaintenanceControl 
               currentUser={currentUser}
               isAdmin={isAdmin('maintenance')}
+            />
+          )}
+
+          {activeTab === 'rooms' && hasAccess('rooms') && (
+            <RoomBookingControl 
+              currentUser={currentUser}
+              isAdmin={isAdmin('rooms')}
+            />
+          )}
+
+          {activeTab === 'security' && hasAccess('security') && (
+            <SecurityReportsControl 
+              currentUser={currentUser}
+              isAdmin={isAdmin('security')}
+            />
+          )}
+
+          {activeTab === 'vehicles' && hasAccess('vehicles') && (
+            <VehicleBookingControl 
+              currentUser={currentUser}
+              isAdmin={isAdmin('vehicles')}
             />
           )}
         </div>

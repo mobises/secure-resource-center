@@ -1,6 +1,5 @@
 
 import React from 'react';
-import UserManagement from './UserManagement';
 import RoomReservations from './RoomReservations';
 import ItModule from './ItModule';
 import SecurityModule from './SecurityModule';
@@ -12,8 +11,6 @@ interface ModuleRendererProps {
 
 const ModuleRenderer: React.FC<ModuleRendererProps> = ({ module }) => {
   switch (module) {
-    case 'users':
-      return <UserManagement />;
     case 'rooms':
       return <RoomReservations />;
     case 'it':

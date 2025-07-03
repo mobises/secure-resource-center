@@ -8,21 +8,21 @@ import { toast } from "@/components/ui/use-toast";
 import { LogIn, Loader2 } from "lucide-react";
 
 interface LoginProps {
-  onLogin: (email: string, password: string) => Promise<boolean>;
+  onLogin: (userId: string, password: string) => Promise<boolean>;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
+  const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    if (!userId || !password) {
       toast({
         title: "Error",
-        description: "Por favor, ingresa tu email y contraseña",
+        description: "Por favor, ingresa tu ID de usuario y contraseña",
         variant: "destructive"
       });
       return;
@@ -31,12 +31,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setLoading(true);
     
     try {
-      const success = await onLogin(email, password);
+      const success = await onLogin(userId, password);
       
       if (!success) {
         toast({
           title: "Error de autenticación",
-          description: "Credenciales inválidas. Por favor, verifica tu email y contraseña.",
+          description: "Credenciales inválidas. Por favor, verifica tu ID de usuario y contraseña.",
           variant: "destructive"
         });
       }
@@ -76,15 +76,15 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="userId">ID de Usuario</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
+                  id="userId"
+                  type="text"
+                  autoComplete="username"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="tu@empresa.com"
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
+                  placeholder="Tu ID de usuario"
                   disabled={loading}
                 />
               </div>
@@ -124,7 +124,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500">
-                Demo: Usa cualquier email y contraseña para acceder
+                Demo: Usa cualquier ID de usuario y contraseña para acceder
               </p>
             </div>
           </CardContent>

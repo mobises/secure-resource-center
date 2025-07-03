@@ -2,7 +2,8 @@
 export interface User {
   id: string;
   name: string;
-  email: string;
+  userId: string; // Cambio de email a ID de usuario
+  password: string;
   role: 'admin' | 'user' | 'manager';
   permissions: string[];
 }
@@ -101,18 +102,25 @@ export interface Module {
   permissions: string[];
 }
 
-// Nuevos tipos para el sistema IT mejorado
+// Nuevos tipos actualizados para el sistema IT mejorado
 export interface SectionUser {
   id: string;
   name: string;
-  email: string;
+  userId: string; // Cambio de email a userId
+  password: string;
   sectionRoles: {
     stock: 'admin' | 'user' | null;
     maintenance: 'admin' | 'user' | null;
+    rooms: 'admin' | 'user' | null;
+    security: 'admin' | 'user' | null;
+    vehicles: 'admin' | 'user' | null;
   };
   sectionAccess: {
     stock: boolean;
     maintenance: boolean;
+    rooms: boolean;
+    security: boolean;
+    vehicles: boolean;
   };
 }
 
@@ -145,5 +153,38 @@ export interface MaintenanceEquipment {
   status: 'operativo' | 'mantenimiento' | 'averiado';
   location: string;
   createdBy: string;
+  createdAt: string;
+}
+
+// Nuevos tipos para el sistema de reportes de seguridad
+export interface SecurityReportSection {
+  id: string;
+  name: string;
+  subsections: SecurityReportSubsection[];
+}
+
+export interface SecurityReportSubsection {
+  id: string;
+  name: string;
+  question: string;
+}
+
+export interface SecurityReport {
+  id: string;
+  reportDate: string;
+  responses: { [subsectionId: string]: number }; // Respuestas de 1-5
+  totalScore: number;
+  maxScore: number;
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface Notification {
+  id: string;
+  userId: string;
+  section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles';
+  message: string;
+  type: 'info' | 'warning' | 'success';
+  read: boolean;
   createdAt: string;
 }

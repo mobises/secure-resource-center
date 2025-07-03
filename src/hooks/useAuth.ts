@@ -15,15 +15,16 @@ export const useAuth = () => {
     setLoading(false);
   }, []);
 
-  const login = (email: string, password: string): Promise<boolean> => {
+  const login = (userId: string, password: string): Promise<boolean> => {
     return new Promise((resolve) => {
-      // Simulación de autenticación
+      // Simulación de autenticación con ID de usuario
       setTimeout(() => {
-        if (email && password) {
+        if (userId && password) {
           const mockUser: User = {
             id: '1',
             name: 'Usuario Admin',
-            email: email,
+            userId: userId,
+            password: password,
             role: 'admin',
             permissions: ['all']
           };
