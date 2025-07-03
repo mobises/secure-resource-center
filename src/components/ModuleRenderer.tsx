@@ -11,13 +11,13 @@ interface ModuleRendererProps {
 
 const ModuleRenderer: React.FC<ModuleRendererProps> = ({ module }) => {
   switch (module) {
-    case 'rooms':
+    case 'room-booking':
       return <RoomReservations />;
     case 'it':
       return <ItModule />;
     case 'security':
       return <SecurityModule />;
-    case 'vehicles':
+    case 'vehicle-booking':
       return <VehicleModule />;
     default:
       return (

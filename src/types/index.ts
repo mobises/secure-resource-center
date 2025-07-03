@@ -63,6 +63,7 @@ export interface Vehicle {
   licensePlate: string;
   type: string;
   status: 'available' | 'maintenance' | 'reserved';
+  maxReservationDays?: number;
 }
 
 export interface VehicleReservation {
@@ -128,19 +129,26 @@ export interface DeviceType {
   id: string;
   name: string;
   category: string;
+  subcategory: string;
 }
 
 export interface StockMovement {
   id: string;
   deviceTypeId: string;
   deviceTypeName: string;
+  deviceCategory: string;
+  deviceSubcategory: string;
   movementType: 'alta' | 'baja';
   units: number;
   date: string;
   recipientId?: string;
   recipientName?: string;
   createdBy: string;
+  createdById: string;
   createdAt: string;
+  modifiedBy?: string;
+  modifiedById?: string;
+  modifiedAt?: string;
 }
 
 export interface MaintenanceEquipment {
@@ -187,4 +195,31 @@ export interface Notification {
   type: 'info' | 'warning' | 'success';
   read: boolean;
   createdAt: string;
+}
+
+// Nuevos tipos para empleados/usuarios del sistema
+export interface Employee {
+  id: string;
+  name: string;
+  userId: string;
+  department: string;
+  position: string;
+  active: boolean;
+}
+
+// Configuración de salas
+export interface RoomConfig {
+  id: string;
+  name: string;
+  resources: RoomResource[];
+  maxCapacity: number;
+  location: string;
+  active: boolean;
+}
+
+export interface RoomResource {
+  id: string;
+  name: string;
+  quantity: number;
+  type: 'furniture' | 'equipment' | 'technology';
 }

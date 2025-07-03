@@ -52,31 +52,35 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-blue-50 to-sky-200 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
+          <div className="mb-6">
+            <h1 className="text-6xl font-bold text-sky-600 mb-2">MOBIS</h1>
+            <div className="w-24 h-1 bg-sky-400 mx-auto rounded-full"></div>
+          </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Sistema de Gestión Empresarial
+            Sistema de Gestión
           </h2>
           <p className="mt-2 text-sm text-gray-600">
             Ingresa tus credenciales para acceder
           </p>
         </div>
         
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+        <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-t-lg">
+            <CardTitle className="flex items-center gap-2 justify-center">
               <LogIn className="h-5 w-5" />
               Iniciar Sesión
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-sky-100 text-center">
               Accede a tu cuenta para continuar
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <Label htmlFor="userId">ID de Usuario</Label>
+                <Label htmlFor="userId" className="text-gray-700 font-medium">ID de Usuario</Label>
                 <Input
                   id="userId"
                   type="text"
@@ -86,11 +90,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   onChange={(e) => setUserId(e.target.value)}
                   placeholder="Tu ID de usuario"
                   disabled={loading}
+                  className="mt-1 border-sky-200 focus:border-sky-500 focus:ring-sky-500"
                 />
               </div>
               
               <div>
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password" className="text-gray-700 font-medium">Contraseña</Label>
                 <Input
                   id="password"
                   type="password"
@@ -100,12 +105,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Tu contraseña"
                   disabled={loading}
+                  className="mt-1 border-sky-200 focus:border-sky-500 focus:ring-sky-500"
                 />
               </div>
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-medium py-2.5"
                 disabled={loading}
               >
                 {loading ? (
