@@ -13,14 +13,16 @@ const UserManagement = () => {
     {
       id: '1',
       name: 'Juan Pérez',
-      email: 'juan.perez@company.com',
+      userId: 'juan.perez',
+      password: '12345',
       role: 'admin',
       permissions: ['all']
     },
     {
       id: '2',
       name: 'María García',
-      email: 'maria.garcia@company.com',
+      userId: 'maria.garcia',
+      password: '12345',
       role: 'user',
       permissions: ['rooms', 'it']
     }
@@ -28,7 +30,8 @@ const UserManagement = () => {
 
   const [newUser, setNewUser] = useState({
     name: '',
-    email: '',
+    userId: '',
+    password: '',
     role: 'user' as User['role'],
     permissions: [] as string[]
   });
@@ -36,7 +39,7 @@ const UserManagement = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleAddUser = () => {
-    if (!newUser.name || !newUser.email) {
+    if (!newUser.name || !newUser.userId || !newUser.password) {
       toast({
         title: "Error",
         description: "Por favor, completa todos los campos",
@@ -53,7 +56,8 @@ const UserManagement = () => {
     setUsers([...users, user]);
     setNewUser({
       name: '',
-      email: '',
+      userId: '',
+      password: '',
       role: 'user',
       permissions: []
     });
@@ -92,13 +96,22 @@ const UserManagement = () => {
             />
           </div>
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="userId">ID de Usuario</Label>
             <Input
-              id="email"
-              type="email"
-              value={newUser.email}
-              onChange={(e) => setNewUser({...newUser, email: e.target.value})}
-              placeholder="usuario@empresa.com"
+              id="userId"
+              value={newUser.userId}
+              onChange={(e) => setNewUser({...newUser, userId: e.target.value})}
+              placeholder="ID único del usuario"
+            />
+          </div>
+          <div>
+            <Label htmlFor="password">Contraseña</Label>
+            <Input
+              id="password"
+              type="password"
+              value={newUser.password}
+              onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+              placeholder="Contraseña del usuario"
             />
           </div>
           <div>
@@ -114,7 +127,7 @@ const UserManagement = () => {
               <option value="admin">Administrador</option>
             </select>
           </div>
-          <div className="flex items-end">
+          <div className="flex items-end md:col-span-2">
             <Button onClick={handleAddUser} className="w-full">
               <Plus className="h-4 w-4 mr-2" />
               Agregar Usuario
@@ -130,7 +143,7 @@ const UserManagement = () => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 flex-1">
                 <div>
                   <p className="font-semibold">{user.name}</p>
-                  <p className="text-sm text-gray-600">{user.email}</p>
+                  <p className="text-sm text-gray-600">ID: {user.userId}</p>
                 </div>
                 <div>
                   <span className={`px-2 py-1 rounded-full text-xs ${
