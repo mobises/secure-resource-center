@@ -37,6 +37,7 @@ const Layout: React.FC<LayoutProps> = ({
     { id: 'it', name: 'IT', icon: Computer },
     { id: 'security', name: 'Seguridad', icon: Shield },
     { id: 'vehicle-booking', name: 'Reserva de Vehículos', icon: Car },
+    { id: 'data-management', name: 'Gestión de Datos', icon: Menu },
   ];
 
   const handleModuleClick = (moduleId: string) => {

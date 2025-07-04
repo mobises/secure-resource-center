@@ -4,6 +4,7 @@ import RoomReservations from './RoomReservations';
 import ItModule from './ItModule';
 import SecurityReportsControl from './SecurityReportsControl';
 import VehicleModule from './VehicleModule';
+import DataManager from './DataManager';
 import { SectionUser } from "@/types";
 
 interface ModuleRendererProps {
@@ -53,6 +54,8 @@ const ModuleRenderer: React.FC<ModuleRendererProps> = ({ module }) => {
       );
     case 'vehicle-booking':
       return <VehicleModule />;
+    case 'data-management':
+      return <DataManager />;
     default:
       return (
         <div className="text-center py-12">
