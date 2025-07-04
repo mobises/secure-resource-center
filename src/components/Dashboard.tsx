@@ -4,47 +4,78 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Users, 
   Calendar, 
-  Computer, 
-  Shield, 
   Car,
   TrendingUp,
-  AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Clock
 } from "lucide-react";
+import { useAuth } from '@/hooks/useAuth';
+import { useSectionUsers, useRoomReservations, useVehicles, useVehicleReservations } from '@/hooks/useLocalData';
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const { data: sectionUsers } = useSectionUsers();
+  const { data: roomReservations } = useRoomReservations();
+  const { data: vehicles } = useVehicles();
+  const { data: vehicleReservations } = useVehicleReservations();
+
+  // Verificar si el usuario es administrador de alguna sección
+  const currentSectionUser = sectionUsers.find(su => su.userId === user?.userId);
+  const isAnyAdmin = currentSectionUser && Object.values(currentSectionUser.sectionRoles).some(role => role === 'admin');
+
+  if (!isAnyAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Card className="p-8 text-center">
+          <CheckCircle className="h-16 w-16 mx-auto text-green-600 mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Bienvenido al Sistema</h2>
+          <p className="text-gray-600">
+            Utiliza el menú de navegación para acceder a los diferentes módulos del sistema.
+          </p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Calcular estadísticas reales
+  const today = new Date().toISOString().split('T')[0];
+  const activeRoomReservations = roomReservations.filter(r => 
+    r.date === today && r.status === 'approved'
+  ).length;
+
+  const todayVehicleReservations = vehicleReservations.filter(vr => 
+    vr.startDate <= today && vr.endDate >= today && vr.status === 'approved'
+  ).length;
+
+  const availableVehicles = vehicles.filter(v => v.status === 'available').length - todayVehicleReservations;
+
+  const connectedUsers = 1; // Usuario actual conectado - en implementación real sería dinámico
+
   const stats = [
     {
       title: "Total Usuarios",
-      value: "156",
+      value: sectionUsers.length.toString(),
       icon: Users,
       color: "text-blue-600",
       bgColor: "bg-blue-100"
     },
     {
-      title: "Reservas Activas",
-      value: "23",
-      icon: Calendar,
+      title: "Usuarios Conectados",
+      value: connectedUsers.toString(),
+      icon: Users,
       color: "text-green-600",
       bgColor: "bg-green-100"
     },
     {
-      title: "Tickets IT Pendientes",
-      value: "8",
-      icon: Computer,
+      title: "Reservas Salas Hoy",
+      value: activeRoomReservations.toString(),
+      icon: Calendar,
       color: "text-orange-600",
       bgColor: "bg-orange-100"
     },
     {
-      title: "Incidentes de Seguridad",
-      value: "2",
-      icon: Shield,
-      color: "text-red-600",
-      bgColor: "bg-red-100"
-    },
-    {
       title: "Vehículos Disponibles",
-      value: "12",
+      value: availableVehicles.toString(),
       icon: Car,
       color: "text-purple-600",
       bgColor: "bg-purple-100"
@@ -54,49 +85,33 @@ const Dashboard = () => {
   const recentActivity = [
     {
       id: 1,
-      type: "reservation",
-      description: "Juan Pérez reservó la Sala de Conferencias A",
-      time: "Hace 5 minutos",
-      icon: Calendar,
+      type: "user_login",
+      description: `${user?.name} inició sesión`,
+      time: "Ahora",
+      icon: Users,
       color: "text-green-600"
     },
     {
       id: 2,
-      type: "it_request",
-      description: "Nuevo ticket IT: Problema con impresora",
-      time: "Hace 15 minutos",
-      icon: Computer,
-      color: "text-orange-600"
-    },
-    {
-      id: 3,
-      type: "security",
-      description: "Incidente de seguridad resuelto",
-      time: "Hace 1 hora",
-      icon: Shield,
-      color: "text-red-600"
-    },
-    {
-      id: 4,
-      type: "vehicle",
-      description: "Vehículo ABC-123 devuelto",
-      time: "Hace 2 horas",
-      icon: Car,
-      color: "text-purple-600"
+      type: "system",
+      description: "Sistema iniciado correctamente",
+      time: "Hace 5 minutos",
+      icon: CheckCircle,
+      color: "text-blue-600"
     }
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Panel de Administración</h1>
         <div className="text-sm text-gray-500">
           Última actualización: {new Date().toLocaleString('es-ES')}
         </div>
       </div>
 
       {/* Estadísticas principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
@@ -123,7 +138,7 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5" />
-              Actividad Reciente
+              Actividad Reciente del Sistema
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -148,40 +163,16 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Alertas y notificaciones */}
+        {/* Información del sistema */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Alertas y Notificaciones
+              <CheckCircle className="h-5 w-5" />
+              Estado del Sistema
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-red-900">
-                    2 incidentes de seguridad pendientes
-                  </p>
-                  <p className="text-xs text-red-700">
-                    Requieren atención inmediata
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3 p-3 bg-orange-50 rounded-lg">
-                <Computer className="h-5 w-5 text-orange-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-orange-900">
-                    8 tickets IT sin asignar
-                  </p>
-                  <p className="text-xs text-orange-700">
-                    Revisar y asignar responsables
-                  </p>
-                </div>
-              </div>
-
               <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
                 <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
                 <div>
@@ -189,8 +180,32 @@ const Dashboard = () => {
                     Sistema funcionando correctamente
                   </p>
                   <p className="text-xs text-green-700">
-                    Todos los servicios operativos
+                    Todos los módulos operativos
                   </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+                <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-blue-900">
+                    Datos sincronizados
+                  </p>
+                  <p className="text-xs text-blue-700">
+                    Almacenamiento local activo
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm font-medium text-gray-900 mb-2">
+                  Información de Sesión:
+                </p>
+                <div className="text-xs text-gray-600 space-y-1">
+                  <p><strong>Usuario:</strong> {user?.name}</p>
+                  <p><strong>ID:</strong> {user?.userId}</p>
+                  <p><strong>Rol:</strong> Administrador</p>
+                  <p><strong>Último login:</strong> {new Date().toLocaleString('es-ES')}</p>
                 </div>
               </div>
             </div>

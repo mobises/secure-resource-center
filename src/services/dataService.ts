@@ -1,4 +1,3 @@
-
 import { LocalStorageService } from './localStorageService';
 import { 
   User, 
@@ -31,7 +30,7 @@ export class DataService {
           id: '1',
           name: 'Admin Principal',
           userId: 'admin',
-          password: '12345',
+          password: 'admin',
           role: 'admin',
           permissions: ['all']
         }
@@ -43,8 +42,8 @@ export class DataService {
         {
           id: '1',
           name: 'Admin IT',
-          userId: 'admin001',
-          password: '12345',
+          userId: 'admin',
+          password: 'admin',
           sectionRoles: {
             stock: 'admin',
             maintenance: 'admin',
@@ -63,50 +62,45 @@ export class DataService {
       ]);
     }
 
+    // Limpiar datos de ejemplo y comenzar con datos vacíos
     if (!this.storage.hasData('mobis_rooms')) {
-      this.saveRooms([
-        {
-          id: '1',
-          name: 'Sala de Conferencias A',
-          capacity: 10,
-          location: 'Piso 1',
-          amenities: ['Proyector', 'Pizarra'],
-          available: true
-        },
-        {
-          id: '2',
-          name: 'Sala de Reuniones B',
-          capacity: 6,
-          location: 'Piso 2',
-          amenities: ['TV', 'Mesa redonda'],
-          available: true
-        }
-      ]);
+      this.saveRooms([]);
+    }
+
+    if (!this.storage.hasData('mobis_room_reservations')) {
+      this.saveRoomReservations([]);
     }
 
     if (!this.storage.hasData('mobis_vehicles')) {
-      this.saveVehicles([
-        {
-          id: '1',
-          brand: 'Toyota',
-          model: 'Corolla',
-          year: 2022,
-          licensePlate: 'ABC-123',
-          type: 'Sedán',
-          status: 'available',
-          maxReservationDays: 7
-        },
-        {
-          id: '2',
-          brand: 'Ford',
-          model: 'Transit',
-          year: 2021,
-          licensePlate: 'XYZ-789',
-          type: 'Van',
-          status: 'available',
-          maxReservationDays: 5
-        }
-      ]);
+      this.saveVehicles([]);
+    }
+
+    if (!this.storage.hasData('mobis_vehicle_reservations')) {
+      this.saveVehicleReservations([]);
+    }
+
+    if (!this.storage.hasData('mobis_stock_movements')) {
+      this.saveStockMovements([]);
+    }
+
+    if (!this.storage.hasData('mobis_device_types')) {
+      this.saveDeviceTypes([]);
+    }
+
+    if (!this.storage.hasData('mobis_maintenance_equipment')) {
+      this.saveMaintenanceEquipment([]);
+    }
+
+    if (!this.storage.hasData('mobis_security_reports')) {
+      this.saveSecurityReports([]);
+    }
+
+    if (!this.storage.hasData('mobis_employees')) {
+      this.saveEmployees([]);
+    }
+
+    if (!this.storage.hasData('mobis_room_configs')) {
+      this.saveRoomConfigs([]);
     }
   }
 

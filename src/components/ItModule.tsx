@@ -2,16 +2,16 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Computer, Users, Package, Wrench, Calendar, Car } from "lucide-react";
+import { Computer, Users, Package, Wrench, Settings } from "lucide-react";
 import { SectionUser } from "@/types";
 import SectionUserManagement from './SectionUserManagement';
 import StockControl from './StockControl';
+import CurrentStock from './CurrentStock';
 import MaintenanceControl from './MaintenanceControl';
-import RoomBookingControl from './RoomBookingControl';
-import VehicleBookingControl from './VehicleBookingControl';
+import RoomConfiguration from './RoomConfiguration';
 
 const ItModule = () => {
-  const [activeTab, setActiveTab] = useState<'users' | 'stock' | 'maintenance' | 'rooms' | 'vehicles'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'stock' | 'current-stock' | 'maintenance' | 'room-config'>('users');
   const [sectionUsers, setSectionUsers] = useState<SectionUser[]>([
     {
       id: '1',
@@ -73,9 +73,9 @@ const ItModule = () => {
   const availableTabs = [
     { id: 'users' as const, name: 'Gestión de Usuarios', icon: Users, always: true },
     { id: 'stock' as const, name: 'Control de Stock', icon: Package, access: hasAccess('stock') },
+    { id: 'current-stock' as const, name: 'Stock Actual', icon: Package, access: hasAccess('stock') },
     { id: 'maintenance' as const, name: 'Mantenimiento', icon: Wrench, access: hasAccess('maintenance') },
-    { id: 'rooms' as const, name: 'Reserva de Salas', icon: Calendar, access: hasAccess('rooms') },
-    { id: 'vehicles' as const, name: 'Reserva de Vehículos', icon: Car, access: hasAccess('vehicles') }
+    { id: 'room-config' as const, name: 'Configuración Salas', icon: Settings, access: hasAccess('rooms') && isAdmin('rooms') }
   ].filter(tab => tab.always || tab.access);
 
   return (
@@ -118,6 +118,10 @@ const ItModule = () => {
             />
           )}
 
+          {activeTab === 'current-stock' && hasAccess('stock') && (
+            <CurrentStock />
+          )}
+
           {activeTab === 'maintenance' && hasAccess('maintenance') && (
             <MaintenanceControl 
               currentUser={currentUser}
@@ -125,18 +129,8 @@ const ItModule = () => {
             />
           )}
 
-          {activeTab === 'rooms' && hasAccess('rooms') && (
-            <RoomBookingControl 
-              currentUser={currentUser}
-              isAdmin={isAdmin('rooms')}
-            />
-          )}
-
-          {activeTab === 'vehicles' && hasAccess('vehicles') && (
-            <VehicleBookingControl 
-              currentUser={currentUser}
-              isAdmin={isAdmin('vehicles')}
-            />
+          {activeTab === 'room-config' && hasAccess('rooms') && isAdmin('rooms') && (
+            <RoomConfiguration isAdmin={isAdmin('rooms')} />
           )}
         </div>
       </Card>
