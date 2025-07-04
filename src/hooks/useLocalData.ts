@@ -70,6 +70,14 @@ export const useRooms = () => {
   );
 };
 
+export const useRoomConfigs = () => {
+  return useLocalData(
+    'roomConfigs',
+    () => dataService.getRoomConfigs(),
+    (configs) => dataService.saveRoomConfigs(configs)
+  );
+};
+
 export const useRoomReservations = () => {
   return useLocalData(
     'roomReservations',
