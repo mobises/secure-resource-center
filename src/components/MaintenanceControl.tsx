@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Wrench, Plus, Calendar, AlertTriangle } from "lucide-react";
+import { Wrench, Plus, Calendar, Edit, Trash2 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { MaintenanceEquipment, SectionUser } from "@/types";
 
@@ -37,9 +37,21 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
     serialNumber: '',
     lastMaintenance: '',
     nextMaintenance: '',
-    status: 'operational' as 'operational' | 'maintenance' | 'broken',
+    purchaseDate: '',
     location: ''
   });
+
+  const [editingEquipment, setEditingEquipment] = useState<string | null>(null);
+  const [editData, setEditData] = useState<any>({});
+
+  const calculateYearsSincePurchase = (purchaseDate: string) => {
+    if (!purchaseDate) return '0,00';
+    const purchase = new Date(purchaseDate);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - purchase.getTime());
+    const years = diffTime / (1000 * 60 * 60 * 24 * 365.25);
+    return years.toFixed(2).replace('.', ',');
+  };
 
   const handleAddEquipment = () => {
     if (!newEquipment.name || !newEquipment.type || !newEquipment.serialNumber) {
@@ -54,6 +66,7 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
     const equipmentItem: MaintenanceEquipment = {
       id: Date.now().toString(),
       ...newEquipment,
+      status: 'operational',
       createdBy: currentUser.name,
       createdAt: new Date().toISOString()
     };
@@ -66,7 +79,7 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
       serialNumber: '',
       lastMaintenance: '',
       nextMaintenance: '',
-      status: 'operational',
+      purchaseDate: '',
       location: ''
     });
 
@@ -76,41 +89,35 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
     });
   };
 
-  const updateEquipmentStatus = (id: string, status: 'operational' | 'maintenance' | 'broken') => {
+  const handleEditEquipment = (id: string) => {
+    const eq = equipment.find(e => e.id === id);
+    if (eq) {
+      setEditingEquipment(id);
+      setEditData({ ...eq });
+    }
+  };
+
+  const handleSaveEdit = () => {
     setEquipment(equipment.map(eq => 
-      eq.id === id ? { ...eq, status } : eq
+      eq.id === editingEquipment ? { ...editData } : eq
     ));
+    setEditingEquipment(null);
+    setEditData({});
     
     toast({
       title: "Éxito",
-      description: "Estado del equipo actualizado"
+      description: "Equipo actualizado correctamente"
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'operational': return 'bg-green-100 text-green-800';
-      case 'maintenance': return 'bg-yellow-100 text-yellow-800';
-      case 'broken': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const handleDeleteEquipment = (id: string) => {
+    if (confirm('¿Estás seguro de que quieres eliminar este equipo?')) {
+      setEquipment(equipment.filter(eq => eq.id !== id));
+      toast({
+        title: "Éxito",
+        description: "Equipo eliminado correctamente"
+      });
     }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'operational': return 'Operativo';
-      case 'maintenance': return 'En Mantenimiento';
-      case 'broken': return 'Averiado';
-      default: return status;
-    }
-  };
-
-  const isMaintenanceDue = (nextMaintenance: string) => {
-    if (!nextMaintenance) return false;
-    const today = new Date();
-    const maintenanceDate = new Date(nextMaintenance);
-    const diffDays = Math.ceil((maintenanceDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
-    return diffDays <= 7;
   };
 
   if (!currentUser.sectionAccess.maintenance) {
@@ -177,7 +184,16 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="lastMaintenance">Último Mantenimiento</Label>
+                <Label htmlFor="purchaseDate">Fecha de Compra</Label>
+                <Input
+                  id="purchaseDate"
+                  type="date"
+                  value={newEquipment.purchaseDate}
+                  onChange={(e) => setNewEquipment({...newEquipment, purchaseDate: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="lastMaintenance">Inicio de Mantenimiento</Label>
                 <Input
                   id="lastMaintenance"
                   type="date"
@@ -186,26 +202,13 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
                 />
               </div>
               <div>
-                <Label htmlFor="nextMaintenance">Próximo Mantenimiento</Label>
+                <Label htmlFor="nextMaintenance">Fin de Mantenimiento</Label>
                 <Input
                   id="nextMaintenance"
                   type="date"
                   value={newEquipment.nextMaintenance}
                   onChange={(e) => setNewEquipment({...newEquipment, nextMaintenance: e.target.value})}
                 />
-              </div>
-              <div>
-                <Label htmlFor="status">Estado</Label>
-                <select
-                  id="status"
-                  value={newEquipment.status}
-                  onChange={(e) => setNewEquipment({...newEquipment, status: e.target.value as 'operational' | 'maintenance' | 'broken'})}
-                  className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md"
-                >
-                  <option value="operational">Operativo</option>
-                  <option value="maintenance">En Mantenimiento</option>
-                  <option value="broken">Averiado</option>
-                </select>
               </div>
             </div>
 
@@ -221,72 +224,104 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
         <h4 className="text-lg font-semibold">Lista de Equipos</h4>
         {equipment.map((eq) => (
           <Card key={eq.id} className="p-4">
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center gap-3">
-                <Wrench className="h-5 w-5" />
-                <div>
-                  <h5 className="font-semibold">{eq.name}</h5>
-                  <p className="text-sm text-gray-600">{eq.deviceType || eq.type} - S/N: {eq.serialNumber}</p>
-                  <p className="text-sm text-gray-600">Ubicación: {eq.location}</p>
-                </div>
-              </div>
-              <div className="flex flex-col items-end gap-2">
-                <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(eq.status)}`}>
-                  {getStatusLabel(eq.status)}
-                </span>
-                {isMaintenanceDue(eq.nextMaintenance) && (
-                  <div className="flex items-center gap-1 text-orange-600">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span className="text-xs">Mant. próximo</span>
+            {editingEquipment === eq.id ? (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Nombre del Equipo</Label>
+                    <Input
+                      value={editData.name || ''}
+                      onChange={(e) => setEditData({...editData, name: e.target.value})}
+                    />
                   </div>
-                )}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-              <div className="text-sm">
-                <span className="font-medium">Último mantenimiento:</span>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {eq.lastMaintenance ? new Date(eq.lastMaintenance).toLocaleDateString() : 'No registrado'}
+                  <div>
+                    <Label>Tipo</Label>
+                    <Input
+                      value={editData.type || ''}
+                      onChange={(e) => setEditData({...editData, type: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>Número de Serie</Label>
+                    <Input
+                      value={editData.serialNumber || ''}
+                      onChange={(e) => setEditData({...editData, serialNumber: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>Ubicación</Label>
+                    <Input
+                      value={editData.location || ''}
+                      onChange={(e) => setEditData({...editData, location: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label>Fecha de Compra</Label>
+                    <Input
+                      type="date"
+                      value={editData.purchaseDate || ''}
+                      onChange={(e) => setEditData({...editData, purchaseDate: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={handleSaveEdit}>Guardar</Button>
+                  <Button variant="outline" onClick={() => setEditingEquipment(null)}>Cancelar</Button>
                 </div>
               </div>
-              <div className="text-sm">
-                <span className="font-medium">Próximo mantenimiento:</span>
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {eq.nextMaintenance ? new Date(eq.nextMaintenance).toLocaleDateString() : 'No programado'}
+            ) : (
+              <>
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <Wrench className="h-5 w-5" />
+                    <div>
+                      <h5 className="font-semibold">{eq.name}</h5>
+                      <p className="text-sm text-gray-600">{eq.deviceType || eq.type} - S/N: {eq.serialNumber}</p>
+                      <p className="text-sm text-gray-600">Ubicación: {eq.location}</p>
+                      {eq.purchaseDate && (
+                        <p className="text-sm text-gray-600">
+                          Años desde compra: {calculateYearsSincePurchase(eq.purchaseDate)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {isAdmin && (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditEquipment(eq.id)}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDeleteEquipment(eq.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
-              </div>
-            </div>
 
-            {isAdmin && (
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => updateEquipmentStatus(eq.id, 'operational')}
-                  disabled={eq.status === 'operational'}
-                >
-                  Operativo
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => updateEquipmentStatus(eq.id, 'maintenance')}
-                  disabled={eq.status === 'maintenance'}
-                >
-                  Mantenimiento
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => updateEquipmentStatus(eq.id, 'broken')}
-                  disabled={eq.status === 'broken'}
-                >
-                  Averiado
-                </Button>
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                  <div className="text-sm">
+                    <span className="font-medium">Inicio de mantenimiento:</span>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      {eq.lastMaintenance ? new Date(eq.lastMaintenance).toLocaleDateString() : 'No registrado'}
+                    </div>
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-medium">Fin de mantenimiento:</span>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      {eq.nextMaintenance ? new Date(eq.nextMaintenance).toLocaleDateString() : 'No programado'}
+                    </div>
+                  </div>
+                </div>
+              </>
             )}
           </Card>
         ))}

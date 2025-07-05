@@ -1,20 +1,8 @@
 
-import React from 'react';
-import { User } from '@/types';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { 
-  Home, 
-  Calendar, 
-  Computer, 
-  Shield, 
-  Car, 
-  LogOut,
-  Menu,
-  X,
-  Users,
-  Database
-} from "lucide-react";
-import { useState } from 'react';
+import { LogOut, Menu, X, Calendar, Car, Shield, Computer, Database } from "lucide-react";
+import { User } from "@/types";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -34,103 +22,87 @@ const Layout: React.FC<LayoutProps> = ({
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const modules = [
-    { id: 'dashboard', name: 'Dashboard', icon: Home },
-    { id: 'users', name: 'Gestión de Usuarios', icon: Users },
+    { id: 'dashboard', name: 'Dashboard', icon: Menu },
     { id: 'rooms', name: 'Reserva de Salas', icon: Calendar },
-    { id: 'vehicles', name: 'Reserva de Vehículos', icon: Car },
-    { id: 'it', name: 'IT', icon: Computer },
+    { id: 'vehicles', name: 'Vehículos', icon: Car },
     { id: 'security', name: 'Seguridad', icon: Shield },
+    { id: 'it', name: 'IT', icon: Computer },
     { id: 'data', name: 'Gestión de Datos', icon: Database },
   ];
 
-  const handleModuleClick = (moduleId: string) => {
-    onModuleChange(moduleId);
-    setSidebarOpen(false);
-  };
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                onClick={() => setSidebarOpen(!sidebarOpen)}
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}>
+        <div className="flex items-center justify-between h-16 px-6 bg-blue-600 text-white">
+          <h1 className="text-xl font-bold">MOBIS</h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(false)}
+            className="lg:hidden text-white hover:bg-blue-700"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+        
+        <nav className="mt-6">
+          {modules.map((module) => {
+            const Icon = module.icon;
+            return (
+              <button
+                key={module.id}
+                onClick={() => {
+                  onModuleChange(module.id);
+                  setSidebarOpen(false);
+                }}
+                className={`w-full flex items-center px-6 py-3 text-left hover:bg-gray-100 ${
+                  currentModule === module.id ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600' : 'text-gray-700'
+                }`}
               >
-                {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </Button>
-              <h1 className="text-xl font-semibold text-gray-900 ml-2 lg:ml-0">
-                Sistema de Gestión Empresarial
-              </h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
-                Bienvenido, {user.name}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onLogout}
-                className="flex items-center gap-2"
-              >
-                <LogOut className="h-4 w-4" />
-                Salir
-              </Button>
-            </div>
+                <Icon className="h-5 w-5 mr-3" />
+                {module.name}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 lg:ml-0">
+        {/* Top bar */}
+        <div className="bg-white shadow-sm border-b h-16 flex items-center justify-between px-6">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setSidebarOpen(true)}
+            className="lg:hidden"
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+          
+          <div className="flex items-center gap-4">
+            <span className="text-gray-700">Bienvenido, {user.name}</span>
+            <Button variant="outline" size="sm" onClick={onLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Cerrar Sesión
+            </Button>
           </div>
         </div>
-      </header>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className={`
-          fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-        `}>
-          <div className="flex flex-col h-full pt-16 lg:pt-0">
-            <nav className="flex-1 px-4 py-6 space-y-2">
-              {modules.map((module) => {
-                const Icon = module.icon;
-                return (
-                  <button
-                    key={module.id}
-                    onClick={() => handleModuleClick(module.id)}
-                    className={`
-                      w-full flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors
-                      ${currentModule === module.id
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                      }
-                    `}
-                  >
-                    <Icon className="h-5 w-5 mr-3" />
-                    {module.name}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
-        </aside>
-
-        {/* Overlay para móvil */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        {/* Contenido principal */}
-        <main className="flex-1 lg:ml-0">
-          <div className="p-6">
-            {children}
-          </div>
-        </main>
+        {/* Content */}
+        <div className="p-6">
+          {children}
+        </div>
       </div>
+
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield } from "lucide-react";
@@ -7,6 +6,7 @@ import { SecurityReport } from "@/types";
 import SecurityReportForm from "./security/SecurityReportForm";
 import SecurityReportsList from "./security/SecurityReportsList";
 import SecurityReportsAnalytics from "./security/SecurityReportsAnalytics";
+import SecurityReportConfig from "./security/SecurityReportConfig";
 
 const EnhancedSecurityReportsControl = () => {
   const { data: reports, updateData: updateReports } = useSecurityReports();
@@ -27,6 +27,7 @@ const EnhancedSecurityReportsControl = () => {
           <TabsTrigger value="create">Crear Reporte</TabsTrigger>
           <TabsTrigger value="history">Histórico</TabsTrigger>
           <TabsTrigger value="analytics">Análisis</TabsTrigger>
+          <TabsTrigger value="config">Configuración</TabsTrigger>
         </TabsList>
 
         <TabsContent value="create">
@@ -39,6 +40,13 @@ const EnhancedSecurityReportsControl = () => {
 
         <TabsContent value="analytics">
           <SecurityReportsAnalytics reports={reports} />
+        </TabsContent>
+
+        <TabsContent value="config">
+          <SecurityReportConfig 
+            sections={[]} 
+            onUpdateSections={() => {}} 
+          />
         </TabsContent>
       </Tabs>
     </div>
