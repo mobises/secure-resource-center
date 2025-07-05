@@ -123,7 +123,6 @@ const UserManagement = () => {
               className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md"
             >
               <option value="user">Usuario</option>
-              <option value="manager">Manager</option>
               <option value="admin">Administrador</option>
             </select>
           </div>
@@ -149,12 +148,9 @@ const UserManagement = () => {
                   <span className={`px-2 py-1 rounded-full text-xs ${
                     user.role === 'admin' 
                       ? 'bg-red-100 text-red-800' 
-                      : user.role === 'manager'
-                      ? 'bg-blue-100 text-blue-800'
                       : 'bg-green-100 text-green-800'
                   }`}>
-                    {user.role === 'admin' ? 'Administrador' : 
-                     user.role === 'manager' ? 'Manager' : 'Usuario'}
+                    {user.role === 'admin' ? 'Administrador' : 'Usuario'}
                   </span>
                 </div>
               </div>

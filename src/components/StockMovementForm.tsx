@@ -26,6 +26,7 @@ const StockMovementForm: React.FC<StockMovementFormProps> = ({
     deviceTypeId: '',
     movementType: 'alta' as 'alta' | 'baja',
     units: 1,
+    reason: '',
     date: new Date().toISOString().split('T')[0],
     recipientId: '',
     recipientName: ''
@@ -43,7 +44,7 @@ const StockMovementForm: React.FC<StockMovementFormProps> = ({
   };
 
   const handleAddMovement = () => {
-    if (!newMovement.deviceTypeId || newMovement.units <= 0) {
+    if (!newMovement.deviceTypeId || newMovement.units <= 0 || !newMovement.reason) {
       toast({
         title: "Error",
         description: "Por favor, completa todos los campos requeridos",
@@ -70,6 +71,9 @@ const StockMovementForm: React.FC<StockMovementFormProps> = ({
       deviceSubcategory: selectedDevice?.subcategory || '',
       movementType: newMovement.movementType,
       units: newMovement.units,
+      reason: newMovement.reason,
+      userId: currentUser.userId,
+      userName: currentUser.name,
       date: newMovement.date,
       recipientId: newMovement.movementType === 'baja' ? newMovement.recipientId : undefined,
       recipientName: newMovement.movementType === 'baja' ? newMovement.recipientName : undefined,
@@ -83,6 +87,7 @@ const StockMovementForm: React.FC<StockMovementFormProps> = ({
       deviceTypeId: '',
       movementType: 'alta',
       units: 1,
+      reason: '',
       date: new Date().toISOString().split('T')[0],
       recipientId: '',
       recipientName: ''
@@ -137,6 +142,16 @@ const StockMovementForm: React.FC<StockMovementFormProps> = ({
               onChange={(e) => setNewMovement({...newMovement, units: parseInt(e.target.value) || 1})}
             />
           </div>
+        </div>
+
+        <div>
+          <Label htmlFor="reason">Motivo</Label>
+          <Input
+            id="reason"
+            value={newMovement.reason}
+            onChange={(e) => setNewMovement({...newMovement, reason: e.target.value})}
+            placeholder="Motivo del movimiento"
+          />
         </div>
 
         <div>

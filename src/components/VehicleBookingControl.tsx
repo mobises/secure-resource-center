@@ -47,10 +47,14 @@ const VehicleBookingControl: React.FC<VehicleBookingControlProps> = ({ currentUs
       return;
     }
 
+    const selectedVehicle = vehicles.find(v => v.id === newReservation.vehicleId);
     const reservation: VehicleReservation = {
       id: Date.now().toString(),
       userId: currentUser.id,
+      userName: currentUser.name,
+      vehicleName: selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model}` : '',
       status: 'pending',
+      createdAt: new Date().toISOString(),
       ...newReservation
     };
 

@@ -38,6 +38,7 @@ export interface Room {
   equipment: string[];
   status: 'available' | 'occupied' | 'maintenance';
   amenities?: string[];
+  available?: boolean;
 }
 
 export interface RoomReservation {
@@ -84,13 +85,14 @@ export interface RoomResource {
 
 export interface Vehicle {
   id: string;
-  name: string;
+  name?: string;
   type: string;
-  capacity: number;
+  capacity?: number;
   status: 'available' | 'in_use' | 'maintenance';
   brand?: string;
   model?: string;
   licensePlate?: string;
+  year?: number;
 }
 
 export interface VehicleReservation {
@@ -143,20 +145,32 @@ export interface MaintenanceEquipment {
   createdAt?: string;
 }
 
+export interface SecurityReportSection {
+  id: string;
+  name: string;
+  subsections: {
+    id: string;
+    name: string;
+    question: string;
+  }[];
+}
+
 export interface SecurityReport {
   id: string;
-  type: string;
-  description: string;
-  location: string;
-  severity: 'low' | 'medium' | 'high';
-  status: 'open' | 'in_progress' | 'closed';
-  reportedBy: string;
-  reportedAt: string;
+  type?: string;
+  description?: string;
+  location?: string;
+  severity?: 'low' | 'medium' | 'high';
+  status?: 'open' | 'in_progress' | 'closed';
+  reportedBy?: string;
+  reportedAt?: string;
   resolvedAt?: string;
   reportDate?: string;
   totalScore?: number;
   maxScore?: number;
   createdBy?: string;
+  responses?: { [key: string]: number };
+  createdAt?: string;
 }
 
 export interface DeviceType {
@@ -169,6 +183,8 @@ export interface DeviceType {
 export interface Employee {
   id: string;
   name: string;
+  userId?: string;
   department: string;
+  position?: string;
   active: boolean;
 }

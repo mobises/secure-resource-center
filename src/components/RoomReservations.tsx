@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,8 @@ const RoomReservations = () => {
       capacity: 12,
       location: 'Piso 2',
       amenities: ['Proyector', 'Pizarra', 'Wi-Fi'],
-      available: true
+      status: 'available',
+      equipment: []
     },
     {
       id: '2',
@@ -24,7 +24,8 @@ const RoomReservations = () => {
       capacity: 20,
       location: 'Piso 3',
       amenities: ['Videoconferencia', 'Catering', 'Wi-Fi'],
-      available: true
+      status: 'available',
+      equipment: []
     }
   ]);
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +46,9 @@ const VehicleReservations = () => {
     {
       id: '1',
       vehicleId: '1',
+      vehicleName: 'Toyota Camry',
       userId: '1',
+      userName: 'Usuario Demo',
       startDate: '2024-07-05',
       endDate: '2024-07-06',
       startTime: '09:00',
@@ -55,7 +56,8 @@ const VehicleReservations = () => {
       purpose: 'Viaje de negocios',
       destination: 'Madrid Centro',
       status: 'approved',
-      distance: 45
+      distance: 45,
+      createdAt: new Date().toISOString()
     }
   ]);
 
@@ -156,9 +158,12 @@ const VehicleReservations = () => {
   const handleAddReservation = () => {
     if (!validateReservation(newReservation)) return;
 
+    const selectedVehicle = vehicles.find(v => v.id === newReservation.vehicleId);
     const reservation: ExtendedVehicleReservation = {
       id: Date.now().toString(),
       userId: '1', // Usuario actual
+      userName: 'Usuario Demo',
+      vehicleName: selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model}` : '',
       status: 'pending',
       vehicleId: newReservation.vehicleId,
       startDate: format(newReservation.startDate!, 'yyyy-MM-dd'),
@@ -167,7 +172,8 @@ const VehicleReservations = () => {
       endTime: newReservation.endTime,
       purpose: newReservation.purpose,
       destination: newReservation.destination,
-      distance: newReservation.distance
+      distance: newReservation.distance,
+      createdAt: new Date().toISOString()
     };
 
     setReservations([...reservations, reservation]);
