@@ -35,24 +35,19 @@ const EnhancedVehicleConfig = () => {
       return;
     }
 
-    const vehicle: Vehicle = {
+    // Create vehicle with all required properties matching the expected type
+    const vehicleForHook = {
       id: Date.now().toString(),
       name: newVehicle.name,
-      type: newVehicle.type,
-      status: newVehicle.status,
       brand: newVehicle.brand,
       model: newVehicle.model,
       year: newVehicle.year,
-      licensePlate: newVehicle.licensePlate
+      licensePlate: newVehicle.licensePlate,
+      type: newVehicle.type,
+      status: newVehicle.status
     };
 
-    // Ensure the vehicle has all required properties for the hook
-    const vehicleWithRequiredName = {
-      ...vehicle,
-      name: vehicle.name || `${vehicle.brand} ${vehicle.model}`
-    };
-
-    const updatedVehicles = [...vehicles, vehicleWithRequiredName];
+    const updatedVehicles = [...vehicles, vehicleForHook];
     updateVehicles(updatedVehicles);
     setNewVehicle({
       name: '',
@@ -86,14 +81,20 @@ const EnhancedVehicleConfig = () => {
   const handleSaveEdit = () => {
     if (!editingVehicle) return;
 
-    // Ensure the edited vehicle has all required properties for the hook
-    const vehicleWithRequiredName = {
-      ...editingVehicle,
-      name: editingVehicle.name || `${editingVehicle.brand || ''} ${editingVehicle.model || ''}`
+    // Create vehicle with all required properties matching the expected type
+    const vehicleForHook = {
+      id: editingVehicle.id,
+      name: editingVehicle.name || `${editingVehicle.brand || ''} ${editingVehicle.model || ''}`,
+      brand: editingVehicle.brand || '',
+      model: editingVehicle.model || '',
+      year: editingVehicle.year || new Date().getFullYear(),
+      licensePlate: editingVehicle.licensePlate || '',
+      type: editingVehicle.type,
+      status: editingVehicle.status
     };
 
     const updatedVehicles = vehicles.map(v => 
-      v.id === editingId ? vehicleWithRequiredName : v
+      v.id === editingId ? vehicleForHook : v
     );
     updateVehicles(updatedVehicles);
     setEditingId(null);
