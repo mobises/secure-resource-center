@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,28 +10,7 @@ import { Shield, FileText, Download, BarChart3, TrendingUp } from "lucide-react"
 import { toast } from "@/components/ui/use-toast";
 import { useSecurityReports } from "@/hooks/useLocalData";
 import { SecurityReport } from "@/types";
-import { 
-  ChartContainer, 
-  ChartTooltip, 
-  ChartTooltipContent,
-  ChartConfig 
-} from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-
-const chartConfig = {
-  low: {
-    label: "Baja",
-    color: "#22c55e",
-  },
-  medium: {
-    label: "Media", 
-    color: "#f59e0b",
-  },
-  high: {
-    label: "Alta",
-    color: "#ef4444",
-  },
-} satisfies ChartConfig;
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 
 const EnhancedSecurityReportsControl = () => {
   const { data: reports, updateData: updateReports } = useSecurityReports();
@@ -131,9 +111,9 @@ const EnhancedSecurityReportsControl = () => {
   }, {} as Record<string, number>);
 
   const chartData = Object.entries(severityData).map(([severity, count]) => ({
-    severity,
-    count,
-    fill: chartConfig[severity as keyof typeof chartConfig]?.color || '#f59e0b'
+    name: severity === 'low' ? 'Baja' : severity === 'medium' ? 'Media' : 'Alta',
+    value: count,
+    color: severity === 'low' ? '#22c55e' : severity === 'medium' ? '#f59e0b' : '#ef4444'
   }));
 
   const statusData = reports.reduce((acc, report) => {
@@ -301,25 +281,26 @@ const EnhancedSecurityReportsControl = () => {
                   <TrendingUp className="h-5 w-5" />
                   Distribución por Severidad
                 </h3>
-                <ChartContainer config={chartConfig} className="h-64">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={40}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="count"
-                      nameKey="severity"
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                  </PieChart>
-                </ChartContainer>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={40}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
               </Card>
             </div>
 
@@ -332,7 +313,7 @@ const EnhancedSecurityReportsControl = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Tooltip />
                     <Bar dataKey="count" fill="#3b82f6" />
                   </BarChart>
                 </ResponsiveContainer>
@@ -346,3 +327,4 @@ const EnhancedSecurityReportsControl = () => {
 };
 
 export default EnhancedSecurityReportsControl;
+
