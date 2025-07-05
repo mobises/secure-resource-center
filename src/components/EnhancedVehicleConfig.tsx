@@ -46,7 +46,8 @@ const EnhancedVehicleConfig = () => {
       status: newVehicle.status
     };
 
-    updateVehicles([...vehicles, vehicle]);
+    const updatedVehicles = [...vehicles, vehicle];
+    updateVehicles(updatedVehicles);
     setNewVehicle({
       name: '',
       brand: '',
