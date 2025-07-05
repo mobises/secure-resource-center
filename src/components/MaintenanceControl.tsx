@@ -18,11 +18,12 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
     {
       id: '1',
       name: 'Servidor Principal',
+      type: 'Servidor',
       deviceType: 'Servidor',
       serialNumber: 'SRV001',
       lastMaintenance: '2024-01-01',
       nextMaintenance: '2024-04-01',
-      status: 'operativo',
+      status: 'operational',
       location: 'Sala de Servidores',
       createdBy: 'Admin IT',
       createdAt: '2024-01-01T00:00:00Z'
@@ -31,16 +32,17 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
 
   const [newEquipment, setNewEquipment] = useState({
     name: '',
+    type: '',
     deviceType: '',
     serialNumber: '',
     lastMaintenance: '',
     nextMaintenance: '',
-    status: 'operativo' as 'operativo' | 'mantenimiento' | 'averiado',
+    status: 'operational' as 'operational' | 'maintenance' | 'broken',
     location: ''
   });
 
   const handleAddEquipment = () => {
-    if (!newEquipment.name || !newEquipment.deviceType || !newEquipment.serialNumber) {
+    if (!newEquipment.name || !newEquipment.type || !newEquipment.serialNumber) {
       toast({
         title: "Error",
         description: "Por favor, completa todos los campos requeridos",
@@ -59,11 +61,12 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
     setEquipment([...equipment, equipmentItem]);
     setNewEquipment({
       name: '',
+      type: '',
       deviceType: '',
       serialNumber: '',
       lastMaintenance: '',
       nextMaintenance: '',
-      status: 'operativo',
+      status: 'operational',
       location: ''
     });
 
@@ -73,7 +76,7 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
     });
   };
 
-  const updateEquipmentStatus = (id: string, status: 'operativo' | 'mantenimiento' | 'averiado') => {
+  const updateEquipmentStatus = (id: string, status: 'operational' | 'maintenance' | 'broken') => {
     setEquipment(equipment.map(eq => 
       eq.id === id ? { ...eq, status } : eq
     ));
@@ -86,10 +89,19 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'operativo': return 'bg-green-100 text-green-800';
-      case 'mantenimiento': return 'bg-yellow-100 text-yellow-800';
-      case 'averiado': return 'bg-red-100 text-red-800';
+      case 'operational': return 'bg-green-100 text-green-800';
+      case 'maintenance': return 'bg-yellow-100 text-yellow-800';
+      case 'broken': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'operational': return 'Operativo';
+      case 'maintenance': return 'En Mantenimiento';
+      case 'broken': return 'Averiado';
+      default: return status;
     }
   };
 
@@ -135,8 +147,8 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
                 <Label htmlFor="equipmentType">Tipo de Dispositivo</Label>
                 <Input
                   id="equipmentType"
-                  value={newEquipment.deviceType}
-                  onChange={(e) => setNewEquipment({...newEquipment, deviceType: e.target.value})}
+                  value={newEquipment.type}
+                  onChange={(e) => setNewEquipment({...newEquipment, type: e.target.value})}
                   placeholder="Ej: Servidor, Router, Switch"
                 />
               </div>
@@ -187,12 +199,12 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
                 <select
                   id="status"
                   value={newEquipment.status}
-                  onChange={(e) => setNewEquipment({...newEquipment, status: e.target.value as 'operativo' | 'mantenimiento' | 'averiado'})}
+                  onChange={(e) => setNewEquipment({...newEquipment, status: e.target.value as 'operational' | 'maintenance' | 'broken'})}
                   className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md"
                 >
-                  <option value="operativo">Operativo</option>
-                  <option value="mantenimiento">En Mantenimiento</option>
-                  <option value="averiado">Averiado</option>
+                  <option value="operational">Operativo</option>
+                  <option value="maintenance">En Mantenimiento</option>
+                  <option value="broken">Averiado</option>
                 </select>
               </div>
             </div>
@@ -214,14 +226,13 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
                 <Wrench className="h-5 w-5" />
                 <div>
                   <h5 className="font-semibold">{eq.name}</h5>
-                  <p className="text-sm text-gray-600">{eq.deviceType} - S/N: {eq.serialNumber}</p>
+                  <p className="text-sm text-gray-600">{eq.deviceType || eq.type} - S/N: {eq.serialNumber}</p>
                   <p className="text-sm text-gray-600">Ubicación: {eq.location}</p>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(eq.status)}`}>
-                  {eq.status === 'operativo' ? 'Operativo' :
-                   eq.status === 'mantenimiento' ? 'En Mantenimiento' : 'Averiado'}
+                  {getStatusLabel(eq.status)}
                 </span>
                 {isMaintenanceDue(eq.nextMaintenance) && (
                   <div className="flex items-center gap-1 text-orange-600">
@@ -254,24 +265,24 @@ const MaintenanceControl: React.FC<MaintenanceControlProps> = ({ currentUser, is
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => updateEquipmentStatus(eq.id, 'operativo')}
-                  disabled={eq.status === 'operativo'}
+                  onClick={() => updateEquipmentStatus(eq.id, 'operational')}
+                  disabled={eq.status === 'operational'}
                 >
                   Operativo
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => updateEquipmentStatus(eq.id, 'mantenimiento')}
-                  disabled={eq.status === 'mantenimiento'}
+                  onClick={() => updateEquipmentStatus(eq.id, 'maintenance')}
+                  disabled={eq.status === 'maintenance'}
                 >
                   Mantenimiento
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => updateEquipmentStatus(eq.id, 'averiado')}
-                  disabled={eq.status === 'averiado'}
+                  onClick={() => updateEquipmentStatus(eq.id, 'broken')}
+                  disabled={eq.status === 'broken'}
                 >
                   Averiado
                 </Button>

@@ -177,6 +177,64 @@ class DataService {
   saveSecurityReports(reports: any[]) {
     this.saveData(this.SECURITY_REPORTS_KEY, reports);
   }
+
+  // Exportar todos los datos
+  exportAllData(): string {
+    const allData = {
+      users: this.getUsers(),
+      sectionUsers: this.getSectionUsers(),
+      rooms: this.getRooms(),
+      roomConfigs: this.getRoomConfigs(),
+      roomReservations: this.getRoomReservations(),
+      vehicles: this.getVehicles(),
+      vehicleReservations: this.getVehicleReservations(),
+      stockMovements: this.getStockMovements(),
+      maintenanceEquipment: this.getMaintenanceEquipment(),
+      securityReports: this.getSecurityReports()
+    };
+    return JSON.stringify(allData, null, 2);
+  }
+
+  // Importar datos
+  importData(jsonData: string): boolean {
+    try {
+      const data = JSON.parse(jsonData);
+      
+      if (data.users) this.saveUsers(data.users);
+      if (data.sectionUsers) this.saveSectionUsers(data.sectionUsers);
+      if (data.rooms) this.saveRooms(data.rooms);
+      if (data.roomConfigs) this.saveRoomConfigs(data.roomConfigs);
+      if (data.roomReservations) this.saveRoomReservations(data.roomReservations);
+      if (data.vehicles) this.saveVehicles(data.vehicles);
+      if (data.vehicleReservations) this.saveVehicleReservations(data.vehicleReservations);
+      if (data.stockMovements) this.saveStockMovements(data.stockMovements);
+      if (data.maintenanceEquipment) this.saveMaintenanceEquipment(data.maintenanceEquipment);
+      if (data.securityReports) this.saveSecurityReports(data.securityReports);
+      
+      return true;
+    } catch (error) {
+      console.error('Error importing data:', error);
+      return false;
+    }
+  }
+
+  // Limpiar todos los datos
+  clearAllData(): void {
+    const keys = [
+      this.USERS_KEY,
+      this.SECTION_USERS_KEY,
+      this.ROOMS_KEY,
+      this.ROOM_CONFIGS_KEY,
+      this.ROOM_RESERVATIONS_KEY,
+      this.VEHICLES_KEY,
+      this.VEHICLE_RESERVATIONS_KEY,
+      this.STOCK_MOVEMENTS_KEY,
+      this.MAINTENANCE_EQUIPMENT_KEY,
+      this.SECURITY_REPORTS_KEY
+    ];
+    
+    keys.forEach(key => localStorage.removeItem(key));
+  }
 }
 
 export const dataService = new DataService();
