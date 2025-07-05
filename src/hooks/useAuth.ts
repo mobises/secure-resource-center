@@ -40,7 +40,7 @@ export const useAuth = () => {
             name: 'Usuario Demo',
             userId: userId,
             password: password,
-            role: 'admin',
+            role: 'admin' as 'admin' | 'user',
             permissions: ['all']
           };
           

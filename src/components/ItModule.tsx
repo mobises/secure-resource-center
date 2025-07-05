@@ -2,61 +2,39 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Computer, Users, Package, Wrench, Settings } from "lucide-react";
+import { Computer, Users, Package, Wrench } from "lucide-react";
 import { SectionUser } from "@/types";
 import SectionUserManagement from './SectionUserManagement';
 import StockControl from './StockControl';
 import CurrentStock from './CurrentStock';
 import MaintenanceControl from './MaintenanceControl';
-import RoomConfiguration from './RoomConfiguration';
+import { useSectionUsers } from "@/hooks/useLocalData";
 
 const ItModule = () => {
-  const [activeTab, setActiveTab] = useState<'users' | 'stock' | 'current-stock' | 'maintenance' | 'room-config'>('users');
-  const [sectionUsers, setSectionUsers] = useState<SectionUser[]>([
-    {
-      id: '1',
-      name: 'Admin IT',
-      userId: 'admin001',
-      password: '12345',
-      sectionRoles: {
-        stock: 'admin',
-        maintenance: 'admin',
-        rooms: 'admin',
-        security: 'admin',
-        vehicles: 'admin'
-      },
-      sectionAccess: {
-        stock: true,
-        maintenance: true,
-        rooms: true,
-        security: true,
-        vehicles: true
-      }
-    },
-    {
-      id: '2',
-      name: 'Usuario Normal',
-      userId: 'user001',
-      password: '12345',
-      sectionRoles: {
-        stock: 'user',
-        maintenance: null,
-        rooms: 'user',
-        security: null,
-        vehicles: 'user'
-      },
-      sectionAccess: {
-        stock: true,
-        maintenance: false,
-        rooms: true,
-        security: false,
-        vehicles: true
-      }
-    }
-  ]);
+  const { data: sectionUsers, updateData: updateSectionUsers } = useSectionUsers();
+  const [activeTab, setActiveTab] = useState<'users' | 'stock' | 'current-stock' | 'maintenance'>('users');
 
   // Usuario actual simulado (en un caso real vendría del contexto de autenticación)
-  const currentUser = sectionUsers[0]; // Simulamos que es el admin
+  const currentUser = sectionUsers[0] || {
+    id: '1',
+    name: 'Admin IT',
+    userId: 'admin001',
+    password: '12345',
+    sectionRoles: {
+      stock: 'admin' as const,
+      maintenance: 'admin' as const,
+      rooms: 'admin' as const,
+      security: 'admin' as const,
+      vehicles: 'admin' as const
+    },
+    sectionAccess: {
+      stock: true,
+      maintenance: true,
+      rooms: true,
+      security: true,
+      vehicles: true
+    }
+  };
   
   const getUserRole = (section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles') => {
     return currentUser.sectionRoles[section];
@@ -74,8 +52,7 @@ const ItModule = () => {
     { id: 'users' as const, name: 'Gestión de Usuarios', icon: Users, always: true },
     { id: 'stock' as const, name: 'Control de Stock', icon: Package, access: hasAccess('stock') },
     { id: 'current-stock' as const, name: 'Stock Actual', icon: Package, access: hasAccess('stock') },
-    { id: 'maintenance' as const, name: 'Mantenimiento', icon: Wrench, access: hasAccess('maintenance') },
-    { id: 'room-config' as const, name: 'Configuración Salas', icon: Settings, access: hasAccess('rooms') && isAdmin('rooms') }
+    { id: 'maintenance' as const, name: 'Mantenimiento', icon: Wrench, access: hasAccess('maintenance') }
   ].filter(tab => tab.always || tab.access);
 
   return (
@@ -107,7 +84,7 @@ const ItModule = () => {
           {activeTab === 'users' && (
             <SectionUserManagement 
               users={sectionUsers}
-              onUpdateUsers={setSectionUsers}
+              onUpdateUsers={updateSectionUsers}
             />
           )}
 
@@ -127,10 +104,6 @@ const ItModule = () => {
               currentUser={currentUser}
               isAdmin={isAdmin('maintenance')}
             />
-          )}
-
-          {activeTab === 'room-config' && hasAccess('rooms') && isAdmin('rooms') && (
-            <RoomConfiguration isAdmin={isAdmin('rooms')} />
           )}
         </div>
       </Card>
