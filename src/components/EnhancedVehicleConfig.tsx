@@ -46,7 +46,7 @@ const EnhancedVehicleConfig = () => {
       status: newVehicle.status
     };
 
-    const updatedVehicles = [...vehicles, vehicle];
+    const updatedVehicles: Vehicle[] = [...vehicles, vehicle];
     updateVehicles(updatedVehicles);
     setNewVehicle({
       name: '',
@@ -80,9 +80,10 @@ const EnhancedVehicleConfig = () => {
   const handleSaveEdit = () => {
     if (!editingVehicle) return;
 
-    updateVehicles(vehicles.map(v => 
+    const updatedVehicles: Vehicle[] = vehicles.map(v => 
       v.id === editingId ? editingVehicle : v
-    ));
+    );
+    updateVehicles(updatedVehicles);
     setEditingId(null);
     setEditingVehicle(null);
     toast({
