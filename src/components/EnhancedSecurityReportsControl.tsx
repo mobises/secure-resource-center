@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,15 +125,6 @@ const EnhancedSecurityReportsControl = () => {
     name: status === 'open' ? 'Abierto' : status === 'in_progress' ? 'En Progreso' : 'Cerrado',
     count
   }));
-
-  // Custom formatter functions
-  const pieTooltipFormatter = (value: unknown) => {
-    return [String(value || '0'), 'Reportes'];
-  };
-
-  const pieTooltipLabelFormatter = (label: unknown) => {
-    return `Severidad: ${String(label || '')}`;
-  };
 
   return (
     <div className="space-y-6">
@@ -305,8 +297,8 @@ const EnhancedSecurityReportsControl = () => {
                         ))}
                       </Pie>
                       <Tooltip 
-                        formatter={pieTooltipFormatter}
-                        labelFormatter={pieTooltipLabelFormatter}
+                        formatter={(value) => [`${value} reportes`, 'Cantidad']}
+                        labelFormatter={(label) => `Severidad: ${label}`}
                       />
                     </PieChart>
                   </ResponsiveContainer>
