@@ -10,7 +10,19 @@ import { Shield, FileText, Download, BarChart3, TrendingUp } from "lucide-react"
 import { toast } from "@/components/ui/use-toast";
 import { useSecurityReports } from "@/hooks/useLocalData";
 import { SecurityReport } from "@/types";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Tooltip, TooltipProps } from 'recharts';
+
+// Define types for chart data
+interface ChartDataItem {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface StatusChartDataItem {
+  name: string;
+  count: number;
+}
 
 const EnhancedSecurityReportsControl = () => {
   const { data: reports, updateData: updateReports } = useSecurityReports();
@@ -110,7 +122,7 @@ const EnhancedSecurityReportsControl = () => {
     return acc;
   }, {} as Record<string, number>);
 
-  const chartData = Object.entries(severityData).map(([severity, count]) => ({
+  const chartData: ChartDataItem[] = Object.entries(severityData).map(([severity, count]) => ({
     name: severity === 'low' ? 'Baja' : severity === 'medium' ? 'Media' : 'Alta',
     value: count,
     color: severity === 'low' ? '#22c55e' : severity === 'medium' ? '#f59e0b' : '#ef4444'
@@ -122,10 +134,35 @@ const EnhancedSecurityReportsControl = () => {
     return acc;
   }, {} as Record<string, number>);
 
-  const statusChartData = Object.entries(statusData).map(([status, count]) => ({
+  const statusChartData: StatusChartDataItem[] = Object.entries(statusData).map(([status, count]) => ({
     name: status === 'open' ? 'Abierto' : status === 'in_progress' ? 'En Progreso' : 'Cerrado',
     count
   }));
+
+  // Custom tooltip formatter for pie chart
+  const CustomPieTooltip = ({ active, payload }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      return (
+        <div className="bg-white p-2 border rounded shadow">
+          <p className="font-medium">{`${data.name}: ${data.value}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom tooltip formatter for bar chart
+  const CustomBarTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 border rounded shadow">
+          <p className="font-medium">{`${label}: ${payload[0].value}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="space-y-6">
@@ -297,7 +334,7 @@ const EnhancedSecurityReportsControl = () => {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip content={<CustomPieTooltip />} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
@@ -313,7 +350,7 @@ const EnhancedSecurityReportsControl = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis />
-                    <Tooltip />
+                    <Tooltip content={<CustomBarTooltip />} />
                     <Bar dataKey="count" fill="#3b82f6" />
                   </BarChart>
                 </ResponsiveContainer>
