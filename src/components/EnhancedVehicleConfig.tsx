@@ -37,7 +37,13 @@ const EnhancedVehicleConfig = () => {
 
     const vehicle: Vehicle = {
       id: Date.now().toString(),
-      ...newVehicle
+      name: newVehicle.name,
+      brand: newVehicle.brand,
+      model: newVehicle.model,
+      year: newVehicle.year,
+      licensePlate: newVehicle.licensePlate,
+      type: newVehicle.type,
+      status: newVehicle.status
     };
 
     updateVehicles([...vehicles, vehicle]);
