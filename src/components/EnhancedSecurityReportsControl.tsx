@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,7 +122,7 @@ const EnhancedSecurityReportsControl = () => {
 
   const chartData: ChartDataItem[] = Object.entries(severityData).map(([severity, count]) => ({
     name: severity === 'low' ? 'Baja' : severity === 'medium' ? 'Media' : 'Alta',
-    value: count,
+    value: count as number,
     color: severity === 'low' ? '#22c55e' : severity === 'medium' ? '#f59e0b' : '#ef4444'
   }));
 
@@ -136,7 +134,7 @@ const EnhancedSecurityReportsControl = () => {
 
   const statusChartData: StatusChartDataItem[] = Object.entries(statusData).map(([status, count]) => ({
     name: status === 'open' ? 'Abierto' : status === 'in_progress' ? 'En Progreso' : 'Cerrado',
-    count
+    count: count as number
   }));
 
   // Custom tooltip formatter for pie chart
@@ -364,4 +362,3 @@ const EnhancedSecurityReportsControl = () => {
 };
 
 export default EnhancedSecurityReportsControl;
-
