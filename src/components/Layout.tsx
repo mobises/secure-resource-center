@@ -10,7 +10,9 @@ import {
   Car, 
   LogOut,
   Menu,
-  X
+  X,
+  Users,
+  Database
 } from "lucide-react";
 import { useState } from 'react';
 
@@ -33,11 +35,12 @@ const Layout: React.FC<LayoutProps> = ({
 
   const modules = [
     { id: 'dashboard', name: 'Dashboard', icon: Home },
-    { id: 'room-booking', name: 'Reserva de Salas', icon: Calendar },
+    { id: 'users', name: 'Gestión de Usuarios', icon: Users },
+    { id: 'rooms', name: 'Reserva de Salas', icon: Calendar },
+    { id: 'vehicles', name: 'Reserva de Vehículos', icon: Car },
     { id: 'it', name: 'IT', icon: Computer },
     { id: 'security', name: 'Seguridad', icon: Shield },
-    { id: 'vehicle-booking', name: 'Reserva de Vehículos', icon: Car },
-    { id: 'data-management', name: 'Gestión de Datos', icon: Menu },
+    { id: 'data', name: 'Gestión de Datos', icon: Database },
   ];
 
   const handleModuleClick = (moduleId: string) => {
