@@ -44,7 +44,7 @@ const EnhancedVehicleConfig = () => {
       year: newVehicle.year,
       licensePlate: newVehicle.licensePlate,
       type: newVehicle.type,
-      status: newVehicle.status
+      status: 'available' as const
     };
 
     const updatedVehicles = [...vehicles, vehicleForHook];
@@ -90,7 +90,7 @@ const EnhancedVehicleConfig = () => {
       year: editingVehicle.year || new Date().getFullYear(),
       licensePlate: editingVehicle.licensePlate || '',
       type: editingVehicle.type,
-      status: editingVehicle.status
+      status: 'available' as const
     };
 
     const updatedVehicles = vehicles.map(v => 
