@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -299,7 +297,7 @@ const EnhancedSecurityReportsControl = () => {
                       </Pie>
                       <Tooltip 
                         formatter={(value: number) => [value.toString(), 'Cantidad']}
-                        labelFormatter={(label: string) => `Severidad: ${label}` as string}
+                        labelFormatter={(label: string) => `Severidad: ${label}`}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -330,4 +328,3 @@ const EnhancedSecurityReportsControl = () => {
 };
 
 export default EnhancedSecurityReportsControl;
-
