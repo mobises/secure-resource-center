@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +45,13 @@ const EnhancedVehicleConfig = () => {
       status: newVehicle.status
     };
 
-    const updatedVehicles: Vehicle[] = [...vehicles, vehicle];
+    // Ensure all vehicles have required properties for the hook
+    const vehicleWithRequiredName = {
+      ...vehicle,
+      name: vehicle.name || `${vehicle.brand} ${vehicle.model}`
+    };
+
+    const updatedVehicles = [...vehicles, vehicleWithRequiredName];
     updateVehicles(updatedVehicles);
     setNewVehicle({
       name: '',
@@ -80,8 +85,14 @@ const EnhancedVehicleConfig = () => {
   const handleSaveEdit = () => {
     if (!editingVehicle) return;
 
-    const updatedVehicles: Vehicle[] = vehicles.map(v => 
-      v.id === editingId ? editingVehicle : v
+    // Ensure the edited vehicle has required properties
+    const vehicleWithRequiredName = {
+      ...editingVehicle,
+      name: editingVehicle.name || `${editingVehicle.brand || ''} ${editingVehicle.model || ''}`
+    };
+
+    const updatedVehicles = vehicles.map(v => 
+      v.id === editingId ? vehicleWithRequiredName : v
     );
     updateVehicles(updatedVehicles);
     setEditingId(null);
