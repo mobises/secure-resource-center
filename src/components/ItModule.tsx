@@ -15,7 +15,7 @@ const ItModule = () => {
   const [activeTab, setActiveTab] = useState<'users' | 'stock' | 'current-stock' | 'maintenance'>('users');
 
   // Usuario actual simulado (en un caso real vendría del contexto de autenticación)
-  const currentUser = sectionUsers[0] || {
+  const currentUser: SectionUser = sectionUsers[0] || {
     id: '1',
     name: 'Admin IT',
     userId: 'admin001',

@@ -49,7 +49,7 @@ class DataService {
         name: 'Administrador',
         userId: 'admin',
         password: 'admin',
-        role: 'admin',
+        role: 'admin' as const,
         permissions: ['all']
       }
     ]);
@@ -68,11 +68,11 @@ class DataService {
         userId: 'admin001',
         password: '12345',
         sectionRoles: {
-          stock: 'admin',
-          maintenance: 'admin',
-          rooms: 'admin',
-          security: 'admin',
-          vehicles: 'admin'
+          stock: 'admin' as const,
+          maintenance: 'admin' as const,
+          rooms: 'admin' as const,
+          security: 'admin' as const,
+          vehicles: 'admin' as const
         },
         sectionAccess: {
           stock: true,
@@ -130,10 +130,13 @@ class DataService {
     return this.getData(this.VEHICLES_KEY, [
       {
         id: '1',
-        name: 'Vehículo Corporativo 1',
-        type: 'sedan',
-        capacity: 4,
-        status: 'available'
+        name: 'Toyota Corolla',
+        brand: 'Toyota',
+        model: 'Corolla',
+        year: 2022,
+        licensePlate: 'ABC-123',
+        type: 'Sedan',
+        status: 'available' as const
       }
     ]);
   }

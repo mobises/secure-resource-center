@@ -160,11 +160,11 @@ const EnhancedVehicleConfig = () => {
               <div className="flex justify-between items-center">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
                   <div>
-                    <p className="font-semibold">{vehicle.brand} {vehicle.model}</p>
-                    <p className="text-sm text-gray-600">{vehicle.year}</p>
+                    <p className="font-semibold">{vehicle.brand || 'N/A'} {vehicle.model || 'N/A'}</p>
+                    <p className="text-sm text-gray-600">{vehicle.year || 'N/A'}</p>
                   </div>
                   <div>
-                    <p className="font-medium">{vehicle.licensePlate}</p>
+                    <p className="font-medium">{vehicle.licensePlate || 'Sin matrícula'}</p>
                     <p className="text-sm text-gray-600">{vehicle.type}</p>
                   </div>
                   <div>

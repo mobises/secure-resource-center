@@ -8,6 +8,7 @@ import EnhancedVehicleBookingControl from './EnhancedVehicleBookingControl';
 import EnhancedVehicleConfig from './EnhancedVehicleConfig';
 import { useSectionUsers } from "@/hooks/useLocalData";
 import { useAuth } from '@/hooks/useAuth';
+import { SectionUser } from "@/types";
 
 const VehicleModule = () => {
   const { user } = useAuth();
@@ -15,7 +16,7 @@ const VehicleModule = () => {
   const isAdmin = user?.role === 'admin';
   
   // Simular usuario de sección actual
-  const currentSectionUser = sectionUsers[0] || {
+  const currentSectionUser: SectionUser = sectionUsers[0] || {
     id: '1',
     name: 'Usuario Demo',
     userId: 'demo',
