@@ -7,10 +7,33 @@ import { Card } from "@/components/ui/card";
 import { Trash2, Plus, Car } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useVehicles } from "@/hooks/useLocalData";
-import { Vehicle } from "@/types";
+
+// Local interface for the enhanced vehicle config component
+interface EnhancedVehicle {
+  id: string;
+  name: string;
+  type: string;
+  status: 'available' | 'maintenance' | 'in_use';
+  brand: string;
+  model: string;
+  year: number;
+  licensePlate: string;
+}
 
 const EnhancedVehicleConfig = () => {
-  const { data: vehicles, updateData: updateVehicles } = useVehicles();
+  const { data: vehicleData, updateData: updateVehicles } = useVehicles();
+  
+  // Convert Vehicle[] to EnhancedVehicle[] ensuring all required fields
+  const vehicles: EnhancedVehicle[] = vehicleData.map(v => ({
+    id: v.id,
+    name: v.name || `${v.brand || 'Unknown'} ${v.model || 'Vehicle'}`,
+    type: v.type,
+    status: v.status,
+    brand: v.brand || '',
+    model: v.model || '',
+    year: v.year || new Date().getFullYear(),
+    licensePlate: v.licensePlate || ''
+  }));
   
   const [newVehicle, setNewVehicle] = useState({
     brand: '',
@@ -33,7 +56,7 @@ const EnhancedVehicleConfig = () => {
       return;
     }
 
-    const vehicle: Vehicle = {
+    const vehicle = {
       id: Date.now().toString(),
       name: `${newVehicle.brand} ${newVehicle.model}`,
       type: newVehicle.type,
@@ -44,7 +67,19 @@ const EnhancedVehicleConfig = () => {
       licensePlate: newVehicle.licensePlate
     };
 
-    updateVehicles([...vehicles, vehicle]);
+    // Convert back to Vehicle format for storage
+    const vehicleForStorage = {
+      id: vehicle.id,
+      name: vehicle.name,
+      type: vehicle.type,
+      status: vehicle.status,
+      brand: vehicle.brand,
+      model: vehicle.model,
+      year: vehicle.year,
+      licensePlate: vehicle.licensePlate
+    };
+
+    updateVehicles([...vehicleData, vehicleForStorage]);
     setNewVehicle({
       brand: '',
       model: '',
@@ -61,19 +96,19 @@ const EnhancedVehicleConfig = () => {
   };
 
   const handleDeleteVehicle = (id: string) => {
-    updateVehicles(vehicles.filter(v => v.id !== id));
+    updateVehicles(vehicleData.filter(v => v.id !== id));
     toast({
       title: "Éxito",
       description: "Vehículo eliminado correctamente"
     });
   };
 
-  const handleEditVehicle = (vehicle: Vehicle) => {
+  const handleEditVehicle = (vehicle: EnhancedVehicle) => {
     setEditingId(vehicle.id);
   };
 
-  const handleSaveEdit = (id: string, updatedVehicle: Partial<Vehicle>) => {
-    const updated = vehicles.map(v => 
+  const handleSaveEdit = (id: string, updatedVehicle: Partial<EnhancedVehicle>) => {
+    const updated = vehicleData.map(v => 
       v.id === id ? { 
         ...v, 
         ...updatedVehicle, 
@@ -219,8 +254,8 @@ const EnhancedVehicleConfig = () => {
 };
 
 interface VehicleEditFormProps {
-  vehicle: Vehicle;
-  onSave: (vehicle: Partial<Vehicle>) => void;
+  vehicle: EnhancedVehicle;
+  onSave: (vehicle: Partial<EnhancedVehicle>) => void;
   onCancel: () => void;
 }
 
@@ -287,7 +322,7 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onSave, onCa
           <select
             id="edit-status"
             value={editData.status}
-            onChange={(e) => setEditData({...editData, status: e.target.value as Vehicle['status']})}
+            onChange={(e) => setEditData({...editData, status: e.target.value as EnhancedVehicle['status']})}
             className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md"
           >
             <option value="available">Disponible</option>
@@ -305,3 +340,4 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onSave, onCa
 };
 
 export default EnhancedVehicleConfig;
+
