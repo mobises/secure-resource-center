@@ -46,7 +46,13 @@ const EnhancedVehicleConfig = () => {
       licensePlate: newVehicle.licensePlate
     };
 
-    const updatedVehicles = [...vehicles, vehicle];
+    // Ensure the vehicle has all required properties for the hook
+    const vehicleWithRequiredName = {
+      ...vehicle,
+      name: vehicle.name || `${vehicle.brand} ${vehicle.model}`
+    };
+
+    const updatedVehicles = [...vehicles, vehicleWithRequiredName];
     updateVehicles(updatedVehicles);
     setNewVehicle({
       name: '',
@@ -80,8 +86,14 @@ const EnhancedVehicleConfig = () => {
   const handleSaveEdit = () => {
     if (!editingVehicle) return;
 
+    // Ensure the edited vehicle has all required properties for the hook
+    const vehicleWithRequiredName = {
+      ...editingVehicle,
+      name: editingVehicle.name || `${editingVehicle.brand || ''} ${editingVehicle.model || ''}`
+    };
+
     const updatedVehicles = vehicles.map(v => 
-      v.id === editingId ? editingVehicle : v
+      v.id === editingId ? vehicleWithRequiredName : v
     );
     updateVehicles(updatedVehicles);
     setEditingId(null);
