@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,21 +38,15 @@ const EnhancedVehicleConfig = () => {
     const vehicle: Vehicle = {
       id: Date.now().toString(),
       name: newVehicle.name,
+      type: newVehicle.type,
+      status: newVehicle.status,
       brand: newVehicle.brand,
       model: newVehicle.model,
       year: newVehicle.year,
-      licensePlate: newVehicle.licensePlate,
-      type: newVehicle.type,
-      status: newVehicle.status
+      licensePlate: newVehicle.licensePlate
     };
 
-    // Ensure all vehicles have required properties for the hook
-    const vehicleWithRequiredName = {
-      ...vehicle,
-      name: vehicle.name || `${vehicle.brand} ${vehicle.model}`
-    };
-
-    const updatedVehicles = [...vehicles, vehicleWithRequiredName];
+    const updatedVehicles = [...vehicles, vehicle];
     updateVehicles(updatedVehicles);
     setNewVehicle({
       name: '',
@@ -85,14 +80,8 @@ const EnhancedVehicleConfig = () => {
   const handleSaveEdit = () => {
     if (!editingVehicle) return;
 
-    // Ensure the edited vehicle has required properties
-    const vehicleWithRequiredName = {
-      ...editingVehicle,
-      name: editingVehicle.name || `${editingVehicle.brand || ''} ${editingVehicle.model || ''}`
-    };
-
     const updatedVehicles = vehicles.map(v => 
-      v.id === editingId ? vehicleWithRequiredName : v
+      v.id === editingId ? editingVehicle : v
     );
     updateVehicles(updatedVehicles);
     setEditingId(null);
@@ -258,7 +247,7 @@ const EnhancedVehicleConfig = () => {
                         : 'bg-blue-100 text-blue-800'
                     }`}>
                       {vehicle.status === 'available' ? 'Disponible' : 
-                       vehicle.status === 'maintenance' ? 'Mantenimiento' : 'Reservado'}
+                       vehicle.status === 'maintenance' ? 'Mantenimiento' : 'En Uso'}
                     </span>
                   </div>
                 </div>
