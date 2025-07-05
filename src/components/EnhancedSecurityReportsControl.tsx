@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -297,7 +296,7 @@ const EnhancedSecurityReportsControl = () => {
                         ))}
                       </Pie>
                       <Tooltip 
-                        formatter={(value: number, name: string) => [value.toString(), name]}
+                        formatter={(value: number, name: string): [string, string] => [value.toString(), name]}
                         labelFormatter={(label: string) => `Severidad: ${label}`}
                       />
                     </PieChart>
