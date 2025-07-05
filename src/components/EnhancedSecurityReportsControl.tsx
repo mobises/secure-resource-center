@@ -296,7 +296,10 @@ const EnhancedSecurityReportsControl = () => {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip 
+                        formatter={(value) => [value, 'Cantidad']}
+                        labelFormatter={(label) => `Severidad: ${label}`}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>

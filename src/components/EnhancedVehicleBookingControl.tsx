@@ -42,7 +42,7 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
       id: Date.now().toString(),
       userId: currentUser.id,
       userName: currentUser.name,
-      vehicleName: selectedVehicle ? `${selectedVehicle.brand} ${selectedVehicle.model}` : '',
+      vehicleName: selectedVehicle ? (selectedVehicle.name || `${selectedVehicle.brand || ''} ${selectedVehicle.model || ''}`) : '',
       status: 'pending',
       createdAt: new Date().toISOString(),
       ...newReservation
@@ -96,7 +96,7 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
               <option value="">Seleccionar vehículo</option>
               {availableVehicles.map((vehicle) => (
                 <option key={vehicle.id} value={vehicle.id}>
-                  {vehicle.brand} {vehicle.model} ({vehicle.licensePlate})
+                  {vehicle.name || `${vehicle.brand || ''} ${vehicle.model || ''}`} ({vehicle.licensePlate || 'Sin matrícula'})
                 </option>
               ))}
             </select>
