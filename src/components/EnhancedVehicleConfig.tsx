@@ -7,33 +7,10 @@ import { Card } from "@/components/ui/card";
 import { Trash2, Plus, Car } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useVehicles } from "@/hooks/useLocalData";
-
-// Local interface for the enhanced vehicle config component
-interface EnhancedVehicle {
-  id: string;
-  name: string;
-  type: string;
-  status: 'available' | 'maintenance' | 'in_use';
-  brand: string;
-  model: string;
-  year: number;
-  licensePlate: string;
-}
+import { Vehicle } from "@/types";
 
 const EnhancedVehicleConfig = () => {
-  const { data: vehicleData, updateData: updateVehicles } = useVehicles();
-  
-  // Convert Vehicle[] to EnhancedVehicle[] ensuring all required fields
-  const vehicles: EnhancedVehicle[] = vehicleData.map(v => ({
-    id: v.id,
-    name: v.name || `${v.brand || 'Unknown'} ${v.model || 'Vehicle'}`,
-    type: v.type,
-    status: v.status,
-    brand: v.brand || '',
-    model: v.model || '',
-    year: v.year || new Date().getFullYear(),
-    licensePlate: v.licensePlate || ''
-  }));
+  const { data: vehicles, updateData: updateVehicles } = useVehicles();
   
   const [newVehicle, setNewVehicle] = useState({
     brand: '',
@@ -41,7 +18,7 @@ const EnhancedVehicleConfig = () => {
     year: new Date().getFullYear(),
     licensePlate: '',
     type: '',
-    status: 'available' as const
+    status: 'available' as Vehicle['status']
   });
 
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -56,7 +33,7 @@ const EnhancedVehicleConfig = () => {
       return;
     }
 
-    const vehicle = {
+    const vehicle: Vehicle = {
       id: Date.now().toString(),
       name: `${newVehicle.brand} ${newVehicle.model}`,
       type: newVehicle.type,
@@ -67,19 +44,7 @@ const EnhancedVehicleConfig = () => {
       licensePlate: newVehicle.licensePlate
     };
 
-    // Convert back to Vehicle format for storage
-    const vehicleForStorage = {
-      id: vehicle.id,
-      name: vehicle.name,
-      type: vehicle.type,
-      status: vehicle.status,
-      brand: vehicle.brand,
-      model: vehicle.model,
-      year: vehicle.year,
-      licensePlate: vehicle.licensePlate
-    };
-
-    updateVehicles([...vehicleData, vehicleForStorage]);
+    updateVehicles([...vehicles, vehicle]);
     setNewVehicle({
       brand: '',
       model: '',
@@ -96,19 +61,19 @@ const EnhancedVehicleConfig = () => {
   };
 
   const handleDeleteVehicle = (id: string) => {
-    updateVehicles(vehicleData.filter(v => v.id !== id));
+    updateVehicles(vehicles.filter(v => v.id !== id));
     toast({
       title: "Éxito",
       description: "Vehículo eliminado correctamente"
     });
   };
 
-  const handleEditVehicle = (vehicle: EnhancedVehicle) => {
+  const handleEditVehicle = (vehicle: Vehicle) => {
     setEditingId(vehicle.id);
   };
 
-  const handleSaveEdit = (id: string, updatedVehicle: Partial<EnhancedVehicle>) => {
-    const updated = vehicleData.map(v => 
+  const handleSaveEdit = (id: string, updatedVehicle: Partial<Vehicle>) => {
+    const updated = vehicles.map(v => 
       v.id === id ? { 
         ...v, 
         ...updatedVehicle, 
@@ -254,8 +219,8 @@ const EnhancedVehicleConfig = () => {
 };
 
 interface VehicleEditFormProps {
-  vehicle: EnhancedVehicle;
-  onSave: (vehicle: Partial<EnhancedVehicle>) => void;
+  vehicle: Vehicle;
+  onSave: (vehicle: Partial<Vehicle>) => void;
   onCancel: () => void;
 }
 
@@ -322,7 +287,7 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onSave, onCa
           <select
             id="edit-status"
             value={editData.status}
-            onChange={(e) => setEditData({...editData, status: e.target.value as EnhancedVehicle['status']})}
+            onChange={(e) => setEditData({...editData, status: e.target.value as Vehicle['status']})}
             className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md"
           >
             <option value="available">Disponible</option>
@@ -340,4 +305,3 @@ const VehicleEditForm: React.FC<VehicleEditFormProps> = ({ vehicle, onSave, onCa
 };
 
 export default EnhancedVehicleConfig;
-
