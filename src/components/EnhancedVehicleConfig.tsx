@@ -309,7 +309,7 @@ const EnhancedVehicleConfig = () => {
                   <div className="text-sm text-gray-600 space-y-1">
                     <p>Marca: {vehicle.brand} | Modelo: {vehicle.model}</p>
                     <p>Año: {vehicle.year} | Matrícula: {vehicle.licensePlate}</p>
-                    <p>Tipo: {vehicle.type} | Capacidad: {vehicle.capacity} personas</p>
+                    <p>Tipo: {vehicle.type} | Capacidad: {vehicle.capacity || 'No especificada'} personas</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
