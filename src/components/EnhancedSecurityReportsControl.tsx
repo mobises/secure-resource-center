@@ -297,7 +297,7 @@ const EnhancedSecurityReportsControl = () => {
                         ))}
                       </Pie>
                       <Tooltip 
-                        formatter={(value: number) => [value, 'Cantidad']}
+                        formatter={(value: number, name: string) => [`${value}`, 'Cantidad']}
                         labelFormatter={(label: string) => `Severidad: ${label}`}
                       />
                     </PieChart>

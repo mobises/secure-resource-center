@@ -69,7 +69,13 @@ const EnhancedVehicleConfig = () => {
 
   const handleSaveEdit = (id: string, updatedVehicle: Partial<Vehicle>) => {
     const updated = vehicles.map(v => 
-      v.id === id ? { ...v, ...updatedVehicle, name: `${updatedVehicle.brand} ${updatedVehicle.model}` } : v
+      v.id === id ? { 
+        ...v, 
+        ...updatedVehicle, 
+        name: updatedVehicle.brand && updatedVehicle.model 
+          ? `${updatedVehicle.brand} ${updatedVehicle.model}` 
+          : v.name 
+      } : v
     );
     updateVehicles(updated);
     setEditingId(null);
@@ -160,7 +166,9 @@ const EnhancedVehicleConfig = () => {
               <div className="flex justify-between items-center">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
                   <div>
-                    <p className="font-semibold">{vehicle.brand || 'N/A'} {vehicle.model || 'N/A'}</p>
+                    <p className="font-semibold">
+                      {vehicle.name || `${vehicle.brand || 'N/A'} ${vehicle.model || 'N/A'}`}
+                    </p>
                     <p className="text-sm text-gray-600">{vehicle.year || 'N/A'}</p>
                   </div>
                   <div>
