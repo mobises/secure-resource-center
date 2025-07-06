@@ -1,3 +1,4 @@
+
 import { 
   User, 
   SectionUser, 
@@ -10,7 +11,8 @@ import {
   StockMovement,
   MaintenanceEquipment,
   SecurityReport,
-  SecurityReportSection
+  SecurityReportSection,
+  Holiday
 } from '@/types';
 
 const STORAGE_KEYS = {
@@ -25,7 +27,8 @@ const STORAGE_KEYS = {
   STOCK_MOVEMENTS: 'stockMovements',
   MAINTENANCE_EQUIPMENT: 'maintenanceEquipment',
   SECURITY_REPORTS: 'securityReports',
-  SECURITY_REPORT_SECTIONS: 'securityReportSections'
+  SECURITY_REPORT_SECTIONS: 'securityReportSections',
+  HOLIDAYS: 'holidays'
 };
 
 // Helper function to get data from localStorage
@@ -125,7 +128,8 @@ const defaultVehicles: Vehicle[] = [
     brand: 'Toyota',
     model: 'Camry',
     licensePlate: 'ABC-123',
-    year: 2022
+    year: 2022,
+    maxReservationDays: 7
   },
   {
     id: '2',
@@ -136,7 +140,8 @@ const defaultVehicles: Vehicle[] = [
     brand: 'Ford',
     model: 'Transit',
     licensePlate: 'DEF-456',
-    year: 2021
+    year: 2021,
+    maxReservationDays: 14
   }
 ];
 
@@ -175,7 +180,11 @@ export const dataService = {
   getRoomScheduleConfig: (): RoomScheduleConfig[] => getFromStorage(STORAGE_KEYS.ROOM_SCHEDULE_CONFIG, []),
   saveRoomScheduleConfig: (config: RoomScheduleConfig[]): void => saveToStorage(STORAGE_KEYS.ROOM_SCHEDULE_CONFIG, config),
 
-  // Vehicles - Fixed to use proper Vehicle type
+  // Holidays
+  getHolidays: (): Holiday[] => getFromStorage(STORAGE_KEYS.HOLIDAYS, []),
+  saveHolidays: (holidays: Holiday[]): void => saveToStorage(STORAGE_KEYS.HOLIDAYS, holidays),
+
+  // Vehicles
   getVehicles: (): Vehicle[] => getFromStorage(STORAGE_KEYS.VEHICLES, defaultVehicles),
   saveVehicles: (vehicles: Vehicle[]): void => saveToStorage(STORAGE_KEYS.VEHICLES, vehicles),
 
@@ -208,6 +217,7 @@ export const dataService = {
       roomConfigs: getFromStorage(STORAGE_KEYS.ROOM_CONFIGS, []),
       roomReservations: getFromStorage(STORAGE_KEYS.ROOM_RESERVATIONS, []),
       roomScheduleConfig: getFromStorage(STORAGE_KEYS.ROOM_SCHEDULE_CONFIG, []),
+      holidays: getFromStorage(STORAGE_KEYS.HOLIDAYS, []),
       vehicles: getFromStorage(STORAGE_KEYS.VEHICLES, defaultVehicles),
       vehicleReservations: getFromStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, []),
       stockMovements: getFromStorage(STORAGE_KEYS.STOCK_MOVEMENTS, []),
@@ -230,6 +240,7 @@ export const dataService = {
       if (data.roomConfigs) saveToStorage(STORAGE_KEYS.ROOM_CONFIGS, data.roomConfigs);
       if (data.roomReservations) saveToStorage(STORAGE_KEYS.ROOM_RESERVATIONS, data.roomReservations);
       if (data.roomScheduleConfig) saveToStorage(STORAGE_KEYS.ROOM_SCHEDULE_CONFIG, data.roomScheduleConfig);
+      if (data.holidays) saveToStorage(STORAGE_KEYS.HOLIDAYS, data.holidays);
       if (data.vehicles) saveToStorage(STORAGE_KEYS.VEHICLES, data.vehicles);
       if (data.vehicleReservations) saveToStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, data.vehicleReservations);
       if (data.stockMovements) saveToStorage(STORAGE_KEYS.STOCK_MOVEMENTS, data.stockMovements);

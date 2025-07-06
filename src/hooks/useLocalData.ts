@@ -1,143 +1,117 @@
 
 import { useState, useEffect } from 'react';
 import { dataService } from '@/services/dataService';
+import { 
+  User, 
+  SectionUser, 
+  Room, 
+  RoomConfig, 
+  RoomReservation, 
+  RoomScheduleConfig,
+  Vehicle,
+  VehicleReservation,
+  StockMovement,
+  MaintenanceEquipment,
+  SecurityReport,
+  SecurityReportSection,
+  Holiday
+} from '@/types';
 
-// Hook personalizado para manejar datos locales con reactividad
-export const useLocalData = <T>(
+// Generic hook for localStorage data
+const useLocalData = <T>(
   key: string,
-  loader: () => T,
-  saver: (data: T) => void
+  getter: () => T,
+  setter: (data: T) => void
 ) => {
-  const [data, setData] = useState<T>(loader);
-  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<T>(getter());
 
-  // Función para actualizar datos
   const updateData = (newData: T) => {
-    setLoading(true);
-    try {
-      saver(newData);
-      setData(newData);
-    } catch (error) {
-      console.error('Error updating data:', error);
-    } finally {
-      setLoading(false);
-    }
+    setData(newData);
+    setter(newData);
   };
 
-  // Función para recargar datos
-  const reloadData = () => {
-    setLoading(true);
-    try {
-      const newData = loader();
-      setData(newData);
-    } catch (error) {
-      console.error('Error reloading data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    setData(getter());
+  }, []);
 
-  return {
-    data,
-    updateData,
-    reloadData,
-    loading
-  };
+  return { data, updateData };
 };
 
-// Hooks específicos para cada tipo de dato
-export const useUsers = () => {
-  return useLocalData(
-    'users',
-    () => dataService.getUsers(),
-    (users) => dataService.saveUsers(users)
-  );
-};
+// Specific hooks for each data type
+export const useUsers = () => useLocalData(
+  'users',
+  dataService.getUsers,
+  dataService.saveUsers
+);
 
-export const useSectionUsers = () => {
-  return useLocalData(
-    'sectionUsers',
-    () => dataService.getSectionUsers(),
-    (users) => dataService.saveSectionUsers(users)
-  );
-};
+export const useSectionUsers = () => useLocalData(
+  'sectionUsers',
+  dataService.getSectionUsers,
+  dataService.saveSectionUsers
+);
 
-export const useRooms = () => {
-  return useLocalData(
-    'rooms',
-    () => dataService.getRooms(),
-    (rooms) => dataService.saveRooms(rooms)
-  );
-};
+export const useRooms = () => useLocalData(
+  'rooms',
+  dataService.getRooms,
+  dataService.saveRooms
+);
 
-export const useRoomConfigs = () => {
-  return useLocalData(
-    'roomConfigs',
-    () => dataService.getRoomConfigs(),
-    (configs) => dataService.saveRoomConfigs(configs)
-  );
-};
+export const useRoomConfigs = () => useLocalData(
+  'roomConfigs',
+  dataService.getRoomConfigs,
+  dataService.saveRoomConfigs
+);
 
-export const useRoomReservations = () => {
-  return useLocalData(
-    'roomReservations',
-    () => dataService.getRoomReservations(),
-    (reservations) => dataService.saveRoomReservations(reservations)
-  );
-};
+export const useRoomReservations = () => useLocalData(
+  'roomReservations',
+  dataService.getRoomReservations,
+  dataService.saveRoomReservations
+);
 
-export const useRoomScheduleConfig = () => {
-  return useLocalData(
-    'roomScheduleConfig',
-    () => dataService.getRoomScheduleConfig(),
-    (config) => dataService.saveRoomScheduleConfig(config)
-  );
-};
+export const useRoomScheduleConfig = () => useLocalData(
+  'roomScheduleConfig',
+  dataService.getRoomScheduleConfig,
+  dataService.saveRoomScheduleConfig
+);
 
-export const useVehicles = () => {
-  return useLocalData(
-    'vehicles',
-    () => dataService.getVehicles(),
-    (vehicles) => dataService.saveVehicles(vehicles)
-  );
-};
+export const useVehicles = () => useLocalData(
+  'vehicles',
+  dataService.getVehicles,
+  dataService.saveVehicles
+);
 
-export const useVehicleReservations = () => {
-  return useLocalData(
-    'vehicleReservations',
-    () => dataService.getVehicleReservations(),
-    (reservations) => dataService.saveVehicleReservations(reservations)
-  );
-};
+export const useVehicleReservations = () => useLocalData(
+  'vehicleReservations',
+  dataService.getVehicleReservations,
+  dataService.saveVehicleReservations
+);
 
-export const useStockMovements = () => {
-  return useLocalData(
-    'stockMovements',
-    () => dataService.getStockMovements(),
-    (movements) => dataService.saveStockMovements(movements)
-  );
-};
+export const useStockMovements = () => useLocalData(
+  'stockMovements',
+  dataService.getStockMovements,
+  dataService.saveStockMovements
+);
 
-export const useMaintenanceEquipment = () => {
-  return useLocalData(
-    'maintenanceEquipment',
-    () => dataService.getMaintenanceEquipment(),
-    (equipment) => dataService.saveMaintenanceEquipment(equipment)
-  );
-};
+export const useMaintenanceEquipment = () => useLocalData(
+  'maintenanceEquipment',
+  dataService.getMaintenanceEquipment,
+  dataService.saveMaintenanceEquipment
+);
 
-export const useSecurityReports = () => {
-  return useLocalData(
-    'securityReports',
-    () => dataService.getSecurityReports(),
-    (reports) => dataService.saveSecurityReports(reports)
-  );
-};
+export const useSecurityReports = () => useLocalData(
+  'securityReports',
+  dataService.getSecurityReports,
+  dataService.saveSecurityReports
+);
 
-export const useSecurityReportSections = () => {
-  return useLocalData(
-    'securityReportSections',
-    () => dataService.getSecurityReportSections(),
-    (sections) => dataService.saveSecurityReportSections(sections)
-  );
-};
+export const useSecurityReportSections = () => useLocalData(
+  'securityReportSections',
+  dataService.getSecurityReportSections,
+  dataService.saveSecurityReportSections
+);
+
+export const useHolidays = () => useLocalData(
+  'holidays',
+  dataService.getHolidays,
+  dataService.saveHolidays
+);

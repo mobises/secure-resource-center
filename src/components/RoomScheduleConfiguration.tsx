@@ -12,6 +12,7 @@ import { RoomScheduleConfig } from "@/types";
 const RoomScheduleConfiguration = () => {
   const { data: scheduleConfig, updateData: updateScheduleConfig } = useRoomScheduleConfig();
   const [config, setConfig] = useState<RoomScheduleConfig[]>([]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const months = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -21,27 +22,31 @@ const RoomScheduleConfiguration = () => {
   const daysOfWeek = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
   useEffect(() => {
-    // Inicializar configuración si no existe
-    if (scheduleConfig.length === 0) {
+    // Filtrar configuración por año seleccionado
+    const yearConfig = scheduleConfig.filter(c => c.year === selectedYear);
+    
+    if (yearConfig.length === 0) {
+      // Crear configuración inicial para el año seleccionado
       const initialConfig: RoomScheduleConfig[] = [];
-      const currentYear = new Date().getFullYear();
       for (let month = 1; month <= 12; month++) {
         for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+          // Agosto tiene horario especial 07:00-14:00, resto 07:30-17:30
+          const isAugust = month === 8;
           initialConfig.push({
-            year: currentYear,
+            year: selectedYear,
             month,
             dayOfWeek,
-            startTime: '09:00',
-            endTime: '18:00',
+            startTime: isAugust ? '07:00' : '07:30',
+            endTime: isAugust ? '14:00' : '17:30',
             enabled: true
           });
         }
       }
       setConfig(initialConfig);
     } else {
-      setConfig(scheduleConfig);
+      setConfig(yearConfig);
     }
-  }, [scheduleConfig]);
+  }, [scheduleConfig, selectedYear]);
 
   const handleTimeChange = (month: number, dayOfWeek: number, field: 'startTime' | 'endTime', value: string) => {
     const newConfig = config.map(item => {
@@ -62,16 +67,20 @@ const RoomScheduleConfiguration = () => {
 
   const getConfigForCell = (month: number, dayOfWeek: number) => {
     return config.find(item => item.month === month && item.dayOfWeek === dayOfWeek) || {
+      year: selectedYear,
       month,
       dayOfWeek,
-      startTime: '09:00',
-      endTime: '18:00',
+      startTime: month === 8 ? '07:00' : '07:30',
+      endTime: month === 8 ? '14:00' : '17:30',
       enabled: true
     };
   };
 
   const handleSave = () => {
-    updateScheduleConfig(config);
+    // Combinar configuración del año actual con la de otros años
+    const otherYearsConfig = scheduleConfig.filter(c => c.year !== selectedYear);
+    const fullConfig = [...otherYearsConfig, ...config];
+    updateScheduleConfig(fullConfig);
     toast({
       title: "Éxito",
       description: "Configuración de horarios guardada correctamente"
@@ -88,6 +97,9 @@ const RoomScheduleConfiguration = () => {
     setConfig(newConfig);
   };
 
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => currentYear + i);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -96,10 +108,18 @@ const RoomScheduleConfiguration = () => {
           <h3 className="text-xl font-bold">Configuración de Horarios de Reserva</h3>
         </div>
         
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => handleSetDefaultHours('09:00', '18:00')}>
-            Horario Normal (9:00-18:00)
-          </Button>
+        <div className="flex gap-2 items-center">
+          <Label htmlFor="year">Año:</Label>
+          <select
+            id="year"
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            className="h-10 px-3 py-2 border border-input bg-background rounded-md"
+          >
+            {years.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
           <Button variant="outline" onClick={() => handleSetDefaultHours('00:00', '00:00')}>
             Deshabilitar Todo
           </Button>
@@ -169,8 +189,8 @@ const RoomScheduleConfiguration = () => {
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Clock className="h-4 w-4" />
           <span>
-            <strong>Nota:</strong> Si ambas horas están en 00:00, ese día estará deshabilitado para reservas.
-            Los usuarios solo podrán seleccionar horas dentro del rango configurado.
+            <strong>Nota:</strong> Horario por defecto: 07:30-17:30 (Agosto: 07:00-14:00). 
+            Si ambas horas están en 00:00, ese día estará deshabilitado para reservas.
           </span>
         </div>
       </Card>

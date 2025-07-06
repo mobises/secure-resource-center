@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Users, Plus } from "lucide-react";
+import { Users, Plus, Edit, Trash2, Lock, Unlock } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { SectionUser } from "@/types";
 
@@ -29,6 +30,8 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
     vehiclesAccess: false
   });
 
+  const [editingUser, setEditingUser] = useState<SectionUser | null>(null);
+
   const handleAddUser = () => {
     if (!newUser.name || !newUser.userId || !newUser.password) {
       toast({
@@ -44,7 +47,8 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
       name: newUser.name,
       userId: newUser.userId,
       password: newUser.password,
-      dashboardAccess: true, // Default to true for new users
+      dashboardAccess: true,
+      lastPasswordChange: new Date().toISOString(),
       sectionRoles: {
         stock: newUser.stockRole,
         maintenance: newUser.maintenanceRole,
@@ -84,6 +88,73 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
     });
   };
 
+  const handleDeleteUser = (userId: string) => {
+    onUpdateUsers(users.filter(u => u.id !== userId));
+    toast({
+      title: "Éxito",
+      description: "Usuario eliminado correctamente"
+    });
+  };
+
+  const handleBlockUser = (userId: string) => {
+    const blockUntil = new Date();
+    blockUntil.setHours(blockUntil.getHours() + 1); // Bloquear por 1 hora
+    
+    const updatedUsers = users.map(user => 
+      user.id === userId 
+        ? { ...user, blockedUntil: blockUntil.toISOString() }
+        : user
+    );
+    onUpdateUsers(updatedUsers);
+    
+    toast({
+      title: "Éxito",
+      description: "Usuario bloqueado temporalmente"
+    });
+  };
+
+  const handleUnblockUser = (userId: string) => {
+    const updatedUsers = users.map(user => 
+      user.id === userId 
+        ? { ...user, blockedUntil: undefined, failedLoginAttempts: 0 }
+        : user
+    );
+    onUpdateUsers(updatedUsers);
+    
+    toast({
+      title: "Éxito",
+      description: "Usuario desbloqueado correctamente"
+    });
+  };
+
+  const handleChangePassword = (userId: string, newPassword: string) => {
+    if (!newPassword) {
+      toast({
+        title: "Error",
+        description: "La contraseña no puede estar vacía",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const updatedUsers = users.map(user => 
+      user.id === userId 
+        ? { 
+            ...user, 
+            password: newPassword,
+            lastPasswordChange: new Date().toISOString(),
+            passwordHistory: [...(user.passwordHistory || []), user.password].slice(-5) // Mantener últimas 5 contraseñas
+          }
+        : user
+    );
+    onUpdateUsers(updatedUsers);
+    
+    toast({
+      title: "Éxito",
+      description: "Contraseña cambiada correctamente"
+    });
+  };
+
   const updateUserRole = (userId: string, section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles', role: 'admin' | 'user' | null) => {
     const updatedUsers = users.map(user => 
       user.id === userId 
@@ -106,6 +177,19 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
         : user
     );
     onUpdateUsers(updatedUsers);
+  };
+
+  const isUserBlocked = (user: SectionUser) => {
+    return user.blockedUntil && new Date(user.blockedUntil) > new Date();
+  };
+
+  const getDaysUntilPasswordExpiration = (lastPasswordChange?: string) => {
+    if (!lastPasswordChange) return -1;
+    const lastChange = new Date(lastPasswordChange);
+    const now = new Date();
+    const diffTime = now.getTime() - lastChange.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return 90 - diffDays;
   };
 
   const sections = [
@@ -199,8 +283,57 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
             <div key={user.id} className="border p-4 rounded-lg">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="font-medium">{user.name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium">{user.name}</p>
+                    {isUserBlocked(user) && (
+                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">
+                        BLOQUEADO
+                      </span>
+                    )}
+                  </div>
                   <p className="text-sm text-gray-600">ID: {user.userId}</p>
+                  <div className="text-xs text-gray-500 mt-1">
+                    <p>Última modificación de clave: {user.lastPasswordChange ? new Date(user.lastPasswordChange).toLocaleDateString('es-ES') : 'Nunca'}</p>
+                    {user.lastPasswordChange && (
+                      <p>Días hasta expiración: {getDaysUntilPasswordExpiration(user.lastPasswordChange)}</p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const newPassword = prompt("Nueva contraseña:");
+                      if (newPassword) handleChangePassword(user.id, newPassword);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  {isUserBlocked(user) ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleUnblockUser(user.id)}
+                    >
+                      <Unlock className="h-4 w-4" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleBlockUser(user.id)}
+                    >
+                      <Lock className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDeleteUser(user.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
               

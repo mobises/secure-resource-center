@@ -40,6 +40,24 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
     }
 
     const selectedVehicle = vehicles.find(v => v.id === newReservation.vehicleId);
+    
+    // Verificar días máximos de reserva
+    if (selectedVehicle?.maxReservationDays) {
+      const startDate = new Date(newReservation.startDate);
+      const endDate = new Date(newReservation.endDate);
+      const diffTime = endDate.getTime() - startDate.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      
+      if (diffDays > selectedVehicle.maxReservationDays) {
+        toast({
+          title: "Error",
+          description: `Este vehículo solo puede reservarse por máximo ${selectedVehicle.maxReservationDays} días`,
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
     const reservation: VehicleReservation = {
       id: Date.now().toString(),
       userId: currentUser.id,
@@ -48,7 +66,7 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
       status: 'pending',
       createdAt: new Date().toISOString(),
       ...newReservation,
-      driverLicense: newReservation.licensePlate // Manteniendo compatibilidad pero usando el nuevo nombre
+      licensePlate: newReservation.licensePlate // Usar el nuevo campo
     };
 
     updateReservations([...reservations, reservation]);
@@ -102,17 +120,18 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
               {availableVehicles.map((vehicle) => (
                 <option key={vehicle.id} value={vehicle.id}>
                   {vehicle.name || `${vehicle.brand || ''} ${vehicle.model || ''}`} ({vehicle.licensePlate || 'Sin matrícula'})
+                  {vehicle.maxReservationDays && ` - Máx. ${vehicle.maxReservationDays} días`}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <Label htmlFor="licensePlate">Matrícula del Conductor</Label>
+            <Label htmlFor="licensePlate">Matrícula del Vehículo</Label>
             <Input
               id="licensePlate"
               value={newReservation.licensePlate}
               onChange={(e) => setNewReservation({...newReservation, licensePlate: e.target.value})}
-              placeholder="Matrícula del conductor"
+              placeholder="Matrícula del vehículo"
             />
           </div>
           <div>
@@ -195,7 +214,7 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
                   </div>
                   <p>Destino: {reservation.destination}</p>
                   <p>Propósito: {reservation.purpose}</p>
-                  <p>Matrícula: {reservation.driverLicense || reservation.licensePlate}</p>
+                  <p>Matrícula del Vehículo: {reservation.licensePlate || reservation.driverLicense}</p>
                 </div>
               </div>
               <span className={`px-2 py-1 rounded-full text-xs ${

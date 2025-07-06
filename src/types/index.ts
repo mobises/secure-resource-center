@@ -63,6 +63,7 @@ export interface RoomReservation {
   purpose: string;
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
   createdAt: string;
+  attendees?: number;
 }
 
 export interface Reservation {
