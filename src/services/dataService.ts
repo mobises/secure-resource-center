@@ -1,4 +1,3 @@
-
 import { 
   User, 
   SectionUser, 
@@ -185,5 +184,57 @@ export const dataService = {
 
   // Security Report Sections
   getSecurityReportSections: (): SecurityReportSection[] => getFromStorage(STORAGE_KEYS.SECURITY_REPORT_SECTIONS, []),
-  saveSecurityReportSections: (sections: SecurityReportSection[]): void => saveToStorage(STORAGE_KEYS.SECURITY_REPORT_SECTIONS, sections)
+  saveSecurityReportSections: (sections: SecurityReportSection[]): void => saveToStorage(STORAGE_KEYS.SECURITY_REPORT_SECTIONS, sections),
+
+  // Export all data as JSON string
+  exportAllData: (): string => {
+    const allData = {
+      users: getFromStorage(STORAGE_KEYS.USERS, defaultUsers),
+      sectionUsers: getFromStorage(STORAGE_KEYS.SECTION_USERS, defaultSectionUsers),
+      rooms: getFromStorage(STORAGE_KEYS.ROOMS, defaultRooms),
+      roomConfigs: getFromStorage(STORAGE_KEYS.ROOM_CONFIGS, []),
+      roomReservations: getFromStorage(STORAGE_KEYS.ROOM_RESERVATIONS, []),
+      roomScheduleConfig: getFromStorage(STORAGE_KEYS.ROOM_SCHEDULE_CONFIG, []),
+      vehicles: getFromStorage(STORAGE_KEYS.VEHICLES, defaultVehicles),
+      vehicleReservations: getFromStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, []),
+      stockMovements: getFromStorage(STORAGE_KEYS.STOCK_MOVEMENTS, []),
+      maintenanceEquipment: getFromStorage(STORAGE_KEYS.MAINTENANCE_EQUIPMENT, []),
+      securityReports: getFromStorage(STORAGE_KEYS.SECURITY_REPORTS, []),
+      securityReportSections: getFromStorage(STORAGE_KEYS.SECURITY_REPORT_SECTIONS, [])
+    };
+    return JSON.stringify(allData, null, 2);
+  },
+
+  // Import data from JSON string
+  importData: (jsonData: string): boolean => {
+    try {
+      const data = JSON.parse(jsonData);
+      
+      // Save each data type if it exists in the imported data
+      if (data.users) saveToStorage(STORAGE_KEYS.USERS, data.users);
+      if (data.sectionUsers) saveToStorage(STORAGE_KEYS.SECTION_USERS, data.sectionUsers);
+      if (data.rooms) saveToStorage(STORAGE_KEYS.ROOMS, data.rooms);
+      if (data.roomConfigs) saveToStorage(STORAGE_KEYS.ROOM_CONFIGS, data.roomConfigs);
+      if (data.roomReservations) saveToStorage(STORAGE_KEYS.ROOM_RESERVATIONS, data.roomReservations);
+      if (data.roomScheduleConfig) saveToStorage(STORAGE_KEYS.ROOM_SCHEDULE_CONFIG, data.roomScheduleConfig);
+      if (data.vehicles) saveToStorage(STORAGE_KEYS.VEHICLES, data.vehicles);
+      if (data.vehicleReservations) saveToStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, data.vehicleReservations);
+      if (data.stockMovements) saveToStorage(STORAGE_KEYS.STOCK_MOVEMENTS, data.stockMovements);
+      if (data.maintenanceEquipment) saveToStorage(STORAGE_KEYS.MAINTENANCE_EQUIPMENT, data.maintenanceEquipment);
+      if (data.securityReports) saveToStorage(STORAGE_KEYS.SECURITY_REPORTS, data.securityReports);
+      if (data.securityReportSections) saveToStorage(STORAGE_KEYS.SECURITY_REPORT_SECTIONS, data.securityReportSections);
+      
+      return true;
+    } catch (error) {
+      console.error('Error importing data:', error);
+      return false;
+    }
+  },
+
+  // Clear all data from localStorage
+  clearAllData: (): void => {
+    Object.values(STORAGE_KEYS).forEach(key => {
+      localStorage.removeItem(key);
+    });
+  }
 };

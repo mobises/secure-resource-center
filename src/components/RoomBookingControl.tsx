@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Calendar, Plus, Clock, MapPin, Users } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { SectionUser, Reservation } from "@/types";
+import { SectionUser, RoomReservation } from "@/types";
 import { useRoomConfigs, useRoomReservations } from "@/hooks/useLocalData";
 
 interface RoomBookingControlProps {
@@ -59,11 +59,18 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
       return;
     }
 
-    const reservation: Reservation = {
+    const reservation: RoomReservation = {
       id: Date.now().toString(),
+      roomId: newReservation.roomId,
+      roomName: selectedRoom.name,
       userId: currentUser.id,
+      userName: currentUser.name,
+      date: newReservation.date,
+      startTime: newReservation.startTime,
+      endTime: newReservation.endTime,
+      purpose: newReservation.purpose,
       status: isAdmin ? 'approved' : 'pending',
-      ...newReservation
+      createdAt: new Date().toISOString()
     };
 
     updateReservations([...reservations, reservation]);
@@ -212,7 +219,7 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
                         <div className="flex items-center gap-2">
                           <MapPin className="h-4 w-4" />
                           <span className="font-semibold">
-                            {room?.name || 'Sala no encontrada'}
+                            {reservation.roomName || room?.name || 'Sala no encontrada'}
                           </span>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -226,7 +233,7 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
                           </div>
                           <div className="flex items-center gap-1">
                             <Users className="h-4 w-4" />
-                            {reservation.attendees} personas
+                            Usuario: {reservation.userName}
                           </div>
                         </div>
                         <p className="text-sm">{reservation.purpose}</p>
