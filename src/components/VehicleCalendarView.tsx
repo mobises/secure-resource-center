@@ -9,8 +9,10 @@ import { Car, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useVehicles, useVehicleReservations } from "@/hooks/useLocalData";
 import { VehicleReservation } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
 
 const VehicleCalendarView = () => {
+  const { user } = useAuth();
   const { data: vehicles } = useVehicles();
   const { data: reservations, updateData: updateReservations } = useVehicleReservations();
   
@@ -48,11 +50,30 @@ const VehicleCalendarView = () => {
     return week;
   };
 
+  const getDatesInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - startDate.getDay() + 1);
+    
+    const dates = [];
+    const current = new Date(startDate);
+    
+    while (current <= lastDay || dates.length < 35) {
+      dates.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return dates;
+  };
+
   const handleDateClick = (date: string) => {
     setSelectedDate(date);
     setSelectedVehicle('');
     setNewReservation({
-      endDate: '',
+      endDate: date,
       startTime: '',
       endTime: '',
       purpose: '',
@@ -81,12 +102,13 @@ const VehicleCalendarView = () => {
       id: Date.now().toString(),
       vehicleId: selectedVehicle,
       vehicleName: vehicle?.name || `${vehicle?.brand || ''} ${vehicle?.model || ''}`,
-      userId: '1',
-      userName: 'Usuario Actual',
+      userId: user?.id || '1',
+      userName: user?.name || 'Usuario',
       startDate: selectedDate,
       status: 'pending',
       createdAt: new Date().toISOString(),
-      driverLicense: newReservation.licensePlate, // Manteniendo compatibilidad
+      driverLicense: newReservation.licensePlate,
+      licensePlate: newReservation.licensePlate,
       ...newReservation
     };
 
@@ -120,6 +142,33 @@ const VehicleCalendarView = () => {
     setCurrentDate(newDate);
   };
 
+  const renderDailyView = () => {
+    const dateStr = formatDate(currentDate);
+    const dayReservations = reservations.filter(r => 
+      dateStr >= r.startDate && dateStr <= r.endDate
+    );
+
+    return (
+      <Card 
+        className="p-6 min-h-[400px] cursor-pointer hover:bg-blue-50"
+        onClick={() => handleDateClick(dateStr)}
+      >
+        <div className="text-xl font-bold mb-4">{currentDate.toLocaleDateString('es-ES')}</div>
+        <div className="space-y-2">
+          {dayReservations.map((reservation) => (
+            <div key={reservation.id} className="p-2 bg-green-100 rounded">
+              <div className="font-medium">{reservation.vehicleName}</div>
+              <div className="text-sm text-gray-600">{reservation.startTime} - {reservation.endTime}</div>
+            </div>
+          ))}
+          {dayReservations.length === 0 && (
+            <p className="text-gray-500">No hay reservas para este día</p>
+          )}
+        </div>
+      </Card>
+    );
+  };
+
   const renderWeeklyView = () => {
     const weekDates = getDatesInWeek(currentDate);
     
@@ -139,7 +188,7 @@ const VehicleCalendarView = () => {
           return (
             <Card 
               key={index} 
-              className="p-2 min-h-[100px] cursor-pointer hover:bg-blue-50"
+              className="p-2 min-h-[120px] cursor-pointer hover:bg-blue-50"
               onClick={() => handleDateClick(dateStr)}
             >
               <div className="text-sm font-medium mb-2">{date.getDate()}</div>
@@ -151,6 +200,49 @@ const VehicleCalendarView = () => {
                 ))}
                 {dayReservations.length > 2 && (
                   <div className="text-xs text-gray-500">+{dayReservations.length - 2} más</div>
+                )}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderMonthlyView = () => {
+    const monthDates = getDatesInMonth(currentDate);
+    
+    return (
+      <div className="grid grid-cols-7 gap-1">
+        {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, index) => (
+          <div key={index} className="text-center font-semibold p-2 bg-gray-50 text-sm">
+            {day}
+          </div>
+        ))}
+        {monthDates.map((date, index) => {
+          const dateStr = formatDate(date);
+          const dayReservations = reservations.filter(r => 
+            dateStr >= r.startDate && dateStr <= r.endDate
+          );
+          const isCurrentMonth = date.getMonth() === currentDate.getMonth();
+          
+          return (
+            <Card 
+              key={index} 
+              className={`p-1 min-h-[80px] cursor-pointer hover:bg-blue-50 ${
+                !isCurrentMonth ? 'opacity-50' : ''
+              }`}
+              onClick={() => handleDateClick(dateStr)}
+            >
+              <div className="text-xs font-medium mb-1">{date.getDate()}</div>
+              <div className="space-y-1">
+                {dayReservations.slice(0, 1).map((reservation) => (
+                  <div key={reservation.id} className="text-xs bg-green-100 p-1 rounded truncate">
+                    {reservation.vehicleName.split(' ')[0]}
+                  </div>
+                ))}
+                {dayReservations.length > 1 && (
+                  <div className="text-xs text-gray-500">+{dayReservations.length - 1}</div>
                 )}
               </div>
             </Card>
@@ -196,7 +288,9 @@ const VehicleCalendarView = () => {
         </Button>
         
         <h2 className="text-lg font-semibold">
-          {viewType === 'weekly'
+          {viewType === 'daily'
+            ? currentDate.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+            : viewType === 'weekly'
             ? `Semana del ${formatDate(getDatesInWeek(currentDate)[0])}`
             : currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
           }
@@ -207,7 +301,9 @@ const VehicleCalendarView = () => {
         </Button>
       </div>
 
-      {renderWeeklyView()}
+      {viewType === 'daily' && renderDailyView()}
+      {viewType === 'weekly' && renderWeeklyView()}
+      {viewType === 'monthly' && renderMonthlyView()}
 
       <Dialog open={showReservationDialog} onOpenChange={setShowReservationDialog}>
         <DialogContent>
@@ -245,7 +341,7 @@ const VehicleCalendarView = () => {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="endTime">Hora de Fin (día final)</Label>
+                    <Label htmlFor="endTime">Hora de Fin</Label>
                     <Input
                       id="endTime"
                       type="time"

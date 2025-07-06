@@ -8,6 +8,7 @@ import { Calendar, Plus, Clock, MapPin, Users, Package } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { SectionUser, RoomReservation } from "@/types";
 import { useRoomConfigs, useRoomReservations } from "@/hooks/useLocalData";
+import { useAuth } from "@/hooks/useAuth";
 
 interface RoomBookingControlProps {
   currentUser: SectionUser;
@@ -15,6 +16,7 @@ interface RoomBookingControlProps {
 }
 
 const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, isAdmin }) => {
+  const { user } = useAuth();
   const { data: roomConfigs } = useRoomConfigs();
   const { data: reservations, updateData: updateReservations } = useRoomReservations();
 
@@ -65,8 +67,8 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
       id: Date.now().toString(),
       roomId: newReservation.roomId,
       roomName: selectedRoom.name,
-      userId: currentUser.id,
-      userName: currentUser.name,
+      userId: user?.id || currentUser.id,
+      userName: user?.name || currentUser.name,
       date: newReservation.date,
       startTime: newReservation.startTime,
       endTime: newReservation.endTime,
@@ -189,7 +191,7 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
                 >
                   {selectedRoom ? (
                     Array.from({ length: selectedRoom.maxCapacity }, (_, i) => i + 1).map(num => (
-                      <option key={num} value={num}>{num}</option>
+                      <option key={num} value={num}>{num} persona{num > 1 ? 's' : ''}</option>
                     ))
                   ) : (
                     <option value={1}>Selecciona una sala primero</option>
@@ -230,7 +232,7 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
                     <p className="font-medium text-sm mb-2">Recursos disponibles:</p>
                     <div className="flex flex-wrap gap-2">
                       {selectedRoom.resources.map((resource) => (
-                        <span key={resource.id} className="px-2 py-1 bg-white rounded text-xs">
+                        <span key={resource.id} className="px-2 py-1 bg-white rounded text-xs border">
                           {resource.name} ({resource.quantity})
                         </span>
                       ))}

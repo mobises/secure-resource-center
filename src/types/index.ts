@@ -1,3 +1,4 @@
+
 // Tipos principales del sistema
 export interface User {
   id: string;
@@ -167,6 +168,13 @@ export interface SecurityReportSection {
   }[];
 }
 
+export interface SecurityReportResponse {
+  questionId: string;
+  question: string;
+  answer: number;
+  maxScore: number;
+}
+
 export interface SecurityReport {
   id: string;
   type?: string;
@@ -181,8 +189,8 @@ export interface SecurityReport {
   totalScore?: number;
   maxScore?: number;
   createdBy?: string;
-  responses?: { [key: string]: number };
   createdAt?: string;
+  responses?: SecurityReportResponse[];
   sections?: SecurityReportSection[];
 }
 

@@ -1,10 +1,10 @@
 
 import { useState, useEffect } from 'react';
-import { User } from '@/types';
+import { User, SectionUser } from '@/types';
 import { dataService } from '@/services/dataService';
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | SectionUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,29 +25,32 @@ export const useAuth = () => {
   const login = (userId: string, password: string): Promise<boolean> => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        // Buscar usuario en la base de datos local
+        // Buscar primero en usuarios regulares
         const users = dataService.getUsers();
         const foundUser = users.find(u => u.userId === userId && u.password === password);
         
         if (foundUser) {
+          console.log('Login successful with regular user:', foundUser);
           setUser(foundUser);
           localStorage.setItem('mobis_current_user', JSON.stringify(foundUser));
           resolve(true);
-        } else {
-          // Si no se encuentra, crear un usuario temporal para la demo
-          const tempUser: User = {
-            id: Date.now().toString(),
-            name: 'Usuario Demo',
-            userId: userId,
-            password: password,
-            role: 'admin' as const,
-            permissions: ['all']
-          };
-          
-          setUser(tempUser);
-          localStorage.setItem('mobis_current_user', JSON.stringify(tempUser));
-          resolve(true);
+          return;
         }
+
+        // Buscar en usuarios de sección
+        const sectionUsers = dataService.getSectionUsers();
+        const foundSectionUser = sectionUsers.find(u => u.userId === userId && u.password === password);
+        
+        if (foundSectionUser) {
+          console.log('Login successful with section user:', foundSectionUser);
+          setUser(foundSectionUser);
+          localStorage.setItem('mobis_current_user', JSON.stringify(foundSectionUser));
+          resolve(true);
+          return;
+        }
+
+        console.log('Login failed for:', userId);
+        resolve(false);
       }, 1000);
     });
   };

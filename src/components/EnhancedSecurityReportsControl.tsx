@@ -14,7 +14,13 @@ const EnhancedSecurityReportsControl = () => {
   const { data: sections, updateData: updateSections } = useSecurityReportSections();
 
   const handleAddReport = (report: SecurityReport) => {
-    updateReports([...reports, report]);
+    const reportWithScore = {
+      ...report,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+      reportDate: new Date().toISOString().split('T')[0]
+    };
+    updateReports([...reports, reportWithScore]);
   };
 
   return (
