@@ -11,7 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 
 const EnhancedRoomReservations = () => {
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin' || (user && 'sectionRoles' in user && user.sectionRoles.rooms === 'admin');
+  const isAdmin = (user && 'role' in user && user.role === 'admin') || (user && 'sectionRoles' in user && user.sectionRoles.rooms === 'admin');
 
   return (
     <div className="space-y-6">

@@ -13,7 +13,7 @@ import { SectionUser } from "@/types";
 const VehicleModule = () => {
   const { user } = useAuth();
   const { data: sectionUsers } = useSectionUsers();
-  const isAdmin = user?.role === 'admin' || (user && 'sectionRoles' in user && user.sectionRoles.vehicles === 'admin');
+  const isAdmin = (user && 'role' in user && user.role === 'admin') || (user && 'sectionRoles' in user && user.sectionRoles.vehicles === 'admin');
   
   // Simular usuario de sección actual
   const currentSectionUser: SectionUser = sectionUsers[0] || {
