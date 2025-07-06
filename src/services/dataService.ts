@@ -1,4 +1,3 @@
-
 // Servicio de datos que maneja la persistencia local
 class DataService {
   // Usuarios del sistema
@@ -9,6 +8,7 @@ class DataService {
   private readonly ROOMS_KEY = 'mobis_rooms';
   private readonly ROOM_CONFIGS_KEY = 'mobis_room_configs';
   private readonly ROOM_RESERVATIONS_KEY = 'mobis_room_reservations';
+  private readonly ROOM_SCHEDULE_CONFIG_KEY = 'mobis_room_schedule_config';
   
   // Vehículos
   private readonly VEHICLES_KEY = 'mobis_vehicles';
@@ -20,6 +20,7 @@ class DataService {
   
   // Seguridad
   private readonly SECURITY_REPORTS_KEY = 'mobis_security_reports';
+  private readonly SECURITY_REPORT_SECTIONS_KEY = 'mobis_security_report_sections';
 
   // Obtener datos con valores por defecto
   private getData<T>(key: string, defaultValue: T): T {
@@ -125,6 +126,15 @@ class DataService {
     this.saveData(this.ROOM_RESERVATIONS_KEY, reservations);
   }
 
+  // Room Schedule Configuration
+  getRoomScheduleConfig() {
+    return this.getData(this.ROOM_SCHEDULE_CONFIG_KEY, []);
+  }
+
+  saveRoomScheduleConfig(config: any[]) {
+    this.saveData(this.ROOM_SCHEDULE_CONFIG_KEY, config);
+  }
+
   // Vehículos
   getVehicles() {
     return this.getData(this.VEHICLES_KEY, [
@@ -179,6 +189,15 @@ class DataService {
 
   saveSecurityReports(reports: any[]) {
     this.saveData(this.SECURITY_REPORTS_KEY, reports);
+  }
+
+  // Security Report Sections
+  getSecurityReportSections() {
+    return this.getData(this.SECURITY_REPORT_SECTIONS_KEY, []);
+  }
+
+  saveSecurityReportSections(sections: any[]) {
+    this.saveData(this.SECURITY_REPORT_SECTIONS_KEY, sections);
   }
 
   // Exportar todos los datos
