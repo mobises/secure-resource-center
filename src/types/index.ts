@@ -1,3 +1,4 @@
+
 // Tipos principales del sistema
 export interface User {
   id: string;
@@ -106,6 +107,7 @@ export interface VehicleReservation {
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
   createdAt: string;
   destination?: string;
+  driverLicense?: string;
 }
 
 export interface StockMovement {
@@ -141,6 +143,7 @@ export interface MaintenanceEquipment {
   serialNumber?: string;
   createdBy?: string;
   createdAt?: string;
+  purchaseDate?: string;
 }
 
 export interface SecurityReportSection {
