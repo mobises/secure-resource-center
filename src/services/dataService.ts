@@ -146,6 +146,7 @@ class DataService {
         year: 2022,
         licensePlate: 'ABC-123',
         type: 'Sedan',
+        capacity: 5,
         status: 'available' as const
       }
     ]);
