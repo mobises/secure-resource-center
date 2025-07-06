@@ -1,263 +1,189 @@
-// Servicio de datos que maneja la persistencia local
-class DataService {
-  // Usuarios del sistema
-  private readonly USERS_KEY = 'mobis_users';
-  private readonly SECTION_USERS_KEY = 'mobis_section_users';
-  
-  // Salas y configuraciones
-  private readonly ROOMS_KEY = 'mobis_rooms';
-  private readonly ROOM_CONFIGS_KEY = 'mobis_room_configs';
-  private readonly ROOM_RESERVATIONS_KEY = 'mobis_room_reservations';
-  private readonly ROOM_SCHEDULE_CONFIG_KEY = 'mobis_room_schedule_config';
-  
-  // Vehículos
-  private readonly VEHICLES_KEY = 'mobis_vehicles';
-  private readonly VEHICLE_RESERVATIONS_KEY = 'mobis_vehicle_reservations';
-  
-  // Stock y mantenimiento
-  private readonly STOCK_MOVEMENTS_KEY = 'mobis_stock_movements';
-  private readonly MAINTENANCE_EQUIPMENT_KEY = 'mobis_maintenance_equipment';
-  
-  // Seguridad
-  private readonly SECURITY_REPORTS_KEY = 'mobis_security_reports';
-  private readonly SECURITY_REPORT_SECTIONS_KEY = 'mobis_security_report_sections';
 
-  // Obtener datos con valores por defecto
-  private getData<T>(key: string, defaultValue: T): T {
-    try {
-      const data = localStorage.getItem(key);
-      return data ? JSON.parse(data) : defaultValue;
-    } catch (error) {
-      console.error(`Error loading data for key ${key}:`, error);
-      return defaultValue;
+import { 
+  User, 
+  SectionUser, 
+  Room, 
+  RoomConfig, 
+  RoomReservation, 
+  RoomScheduleConfig,
+  Vehicle,
+  VehicleReservation,
+  StockMovement,
+  MaintenanceEquipment,
+  SecurityReport,
+  SecurityReportSection
+} from '@/types';
+
+const STORAGE_KEYS = {
+  USERS: 'users',
+  SECTION_USERS: 'sectionUsers',
+  ROOMS: 'rooms',
+  ROOM_CONFIGS: 'roomConfigs',
+  ROOM_RESERVATIONS: 'roomReservations',
+  ROOM_SCHEDULE_CONFIG: 'roomScheduleConfig',
+  VEHICLES: 'vehicles',
+  VEHICLE_RESERVATIONS: 'vehicleReservations',
+  STOCK_MOVEMENTS: 'stockMovements',
+  MAINTENANCE_EQUIPMENT: 'maintenanceEquipment',
+  SECURITY_REPORTS: 'securityReports',
+  SECURITY_REPORT_SECTIONS: 'securityReportSections'
+};
+
+// Helper function to get data from localStorage
+const getFromStorage = <T>(key: string, defaultValue: T): T => {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (error) {
+    console.error(`Error loading ${key} from localStorage:`, error);
+    return defaultValue;
+  }
+};
+
+// Helper function to save data to localStorage
+const saveToStorage = <T>(key: string, data: T): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch (error) {
+    console.error(`Error saving ${key} to localStorage:`, error);
+  }
+};
+
+// Default data
+const defaultUsers: User[] = [
+  {
+    id: '1',
+    name: 'Admin User',
+    userId: 'admin',
+    password: 'admin123',
+    role: 'admin',
+    permissions: ['all']
+  },
+  {
+    id: '2',
+    name: 'Regular User',
+    userId: 'user',
+    password: 'user123',
+    role: 'user',
+    permissions: ['read']
+  }
+];
+
+const defaultSectionUsers: SectionUser[] = [
+  {
+    id: '1',
+    name: 'Section Admin',
+    userId: 'section_admin',
+    password: 'admin123',
+    sectionRoles: {
+      stock: 'admin',
+      maintenance: 'admin',
+      rooms: 'admin',
+      security: 'admin',
+      vehicles: 'admin'
+    },
+    sectionAccess: {
+      stock: true,
+      maintenance: true,
+      rooms: true,
+      security: true,
+      vehicles: true
     }
   }
+];
 
-  // Guardar datos
-  private saveData<T>(key: string, data: T): void {
-    try {
-      localStorage.setItem(key, JSON.stringify(data));
-    } catch (error) {
-      console.error(`Error saving data for key ${key}:`, error);
-    }
+const defaultRooms: Room[] = [
+  {
+    id: '1',
+    name: 'Sala de Juntas Principal',
+    capacity: 12,
+    location: 'Piso 2',
+    equipment: ['Proyector', 'Pantalla', 'Sistema de Audio'],
+    status: 'available',
+    amenities: ['WiFi', 'Aire Acondicionado', 'Pizarra']
+  },
+  {
+    id: '2',
+    name: 'Sala de Conferencias',
+    capacity: 8,
+    location: 'Piso 1',
+    equipment: ['TV', 'Sistema de Videoconferencia'],
+    status: 'available',
+    amenities: ['WiFi', 'Cafetera']
   }
+];
 
-  // Usuarios principales
-  getUsers() {
-    return this.getData(this.USERS_KEY, [
-      {
-        id: '1',
-        name: 'Administrador',
-        userId: 'admin',
-        password: 'admin',
-        role: 'admin' as const,
-        permissions: ['all']
-      }
-    ]);
+const defaultVehicles: Vehicle[] = [
+  {
+    id: '1',
+    name: 'Toyota Camry 2022',
+    type: 'Sedan',
+    capacity: 5,
+    status: 'available',
+    brand: 'Toyota',
+    model: 'Camry',
+    licensePlate: 'ABC-123',
+    year: 2022
+  },
+  {
+    id: '2',
+    name: 'Ford Transit 2021',
+    type: 'Van',
+    capacity: 12,
+    status: 'maintenance',
+    brand: 'Ford',
+    model: 'Transit',
+    licensePlate: 'DEF-456',
+    year: 2021
   }
+];
 
-  saveUsers(users: any[]) {
-    this.saveData(this.USERS_KEY, users);
-  }
+export const dataService = {
+  // Users
+  getUsers: (): User[] => getFromStorage(STORAGE_KEYS.USERS, defaultUsers),
+  saveUsers: (users: User[]): void => saveToStorage(STORAGE_KEYS.USERS, users),
 
-  // Usuarios de sección
-  getSectionUsers() {
-    return this.getData(this.SECTION_USERS_KEY, [
-      {
-        id: '1',
-        name: 'Admin IT',
-        userId: 'admin001',
-        password: '12345',
-        sectionRoles: {
-          stock: 'admin' as const,
-          maintenance: 'admin' as const,
-          rooms: 'admin' as const,
-          security: 'admin' as const,
-          vehicles: 'admin' as const
-        },
-        sectionAccess: {
-          stock: true,
-          maintenance: true,
-          rooms: true,
-          security: true,
-          vehicles: true
-        }
-      }
-    ]);
-  }
+  // Section Users
+  getSectionUsers: (): SectionUser[] => getFromStorage(STORAGE_KEYS.SECTION_USERS, defaultSectionUsers),
+  saveSectionUsers: (users: SectionUser[]): void => saveToStorage(STORAGE_KEYS.SECTION_USERS, users),
 
-  saveSectionUsers(users: any[]) {
-    this.saveData(this.SECTION_USERS_KEY, users);
-  }
+  // Rooms
+  getRooms: (): Room[] => getFromStorage(STORAGE_KEYS.ROOMS, defaultRooms),
+  saveRooms: (rooms: Room[]): void => saveToStorage(STORAGE_KEYS.ROOMS, rooms),
 
-  // Salas
-  getRooms() {
-    return this.getData(this.ROOMS_KEY, [
-      {
-        id: '1',
-        name: 'Sala de Reuniones A',
-        capacity: 10,
-        location: 'Planta 1',
-        equipment: ['Proyector', 'Pizarra'],
-        status: 'available'
-      }
-    ]);
-  }
+  // Room Configs
+  getRoomConfigs: (): RoomConfig[] => getFromStorage(STORAGE_KEYS.ROOM_CONFIGS, []),
+  saveRoomConfigs: (configs: RoomConfig[]): void => saveToStorage(STORAGE_KEYS.ROOM_CONFIGS, configs),
 
-  saveRooms(rooms: any[]) {
-    this.saveData(this.ROOMS_KEY, rooms);
-  }
+  // Room Reservations
+  getRoomReservations: (): RoomReservation[] => getFromStorage(STORAGE_KEYS.ROOM_RESERVATIONS, []),
+  saveRoomReservations: (reservations: RoomReservation[]): void => saveToStorage(STORAGE_KEYS.ROOM_RESERVATIONS, reservations),
 
-  // Configuraciones de salas
-  getRoomConfigs() {
-    return this.getData(this.ROOM_CONFIGS_KEY, []);
-  }
+  // Room Schedule Config
+  getRoomScheduleConfig: (): RoomScheduleConfig[] => getFromStorage(STORAGE_KEYS.ROOM_SCHEDULE_CONFIG, []),
+  saveRoomScheduleConfig: (config: RoomScheduleConfig[]): void => saveToStorage(STORAGE_KEYS.ROOM_SCHEDULE_CONFIG, config),
 
-  saveRoomConfigs(configs: any[]) {
-    this.saveData(this.ROOM_CONFIGS_KEY, configs);
-  }
+  // Vehicles - Fixed to use proper Vehicle type
+  getVehicles: (): Vehicle[] => getFromStorage(STORAGE_KEYS.VEHICLES, defaultVehicles),
+  saveVehicles: (vehicles: Vehicle[]): void => saveToStorage(STORAGE_KEYS.VEHICLES, vehicles),
 
-  // Reservas de salas
-  getRoomReservations() {
-    return this.getData(this.ROOM_RESERVATIONS_KEY, []);
-  }
+  // Vehicle Reservations
+  getVehicleReservations: (): VehicleReservation[] => getFromStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, []),
+  saveVehicleReservations: (reservations: VehicleReservation[]): void => saveToStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, reservations),
 
-  saveRoomReservations(reservations: any[]) {
-    this.saveData(this.ROOM_RESERVATIONS_KEY, reservations);
-  }
+  // Stock Movements
+  getStockMovements: (): StockMovement[] => getFromStorage(STORAGE_KEYS.STOCK_MOVEMENTS, []),
+  saveStockMovements: (movements: StockMovement[]): void => saveToStorage(STORAGE_KEYS.STOCK_MOVEMENTS, movements),
 
-  // Room Schedule Configuration
-  getRoomScheduleConfig() {
-    return this.getData(this.ROOM_SCHEDULE_CONFIG_KEY, []);
-  }
+  // Maintenance Equipment
+  getMaintenanceEquipment: (): MaintenanceEquipment[] => getFromStorage(STORAGE_KEYS.MAINTENANCE_EQUIPMENT, []),
+  saveMaintenanceEquipment: (equipment: MaintenanceEquipment[]): void => saveToStorage(STORAGE_KEYS.MAINTENANCE_EQUIPMENT, equipment),
 
-  saveRoomScheduleConfig(config: any[]) {
-    this.saveData(this.ROOM_SCHEDULE_CONFIG_KEY, config);
-  }
-
-  // Vehículos
-  getVehicles() {
-    return this.getData(this.VEHICLES_KEY, [
-      {
-        id: '1',
-        name: 'Toyota Corolla',
-        brand: 'Toyota',
-        model: 'Corolla',
-        year: 2022,
-        licensePlate: 'ABC-123',
-        type: 'Sedan',
-        capacity: 5,
-        status: 'available' as const
-      }
-    ]);
-  }
-
-  saveVehicles(vehicles: any[]) {
-    this.saveData(this.VEHICLES_KEY, vehicles);
-  }
-
-  // Reservas de vehículos
-  getVehicleReservations() {
-    return this.getData(this.VEHICLE_RESERVATIONS_KEY, []);
-  }
-
-  saveVehicleReservations(reservations: any[]) {
-    this.saveData(this.VEHICLE_RESERVATIONS_KEY, reservations);
-  }
-
-  // Movimientos de stock
-  getStockMovements() {
-    return this.getData(this.STOCK_MOVEMENTS_KEY, []);
-  }
-
-  saveStockMovements(movements: any[]) {
-    this.saveData(this.STOCK_MOVEMENTS_KEY, movements);
-  }
-
-  // Equipos de mantenimiento
-  getMaintenanceEquipment() {
-    return this.getData(this.MAINTENANCE_EQUIPMENT_KEY, []);
-  }
-
-  saveMaintenanceEquipment(equipment: any[]) {
-    this.saveData(this.MAINTENANCE_EQUIPMENT_KEY, equipment);
-  }
-
-  // Reportes de seguridad
-  getSecurityReports() {
-    return this.getData(this.SECURITY_REPORTS_KEY, []);
-  }
-
-  saveSecurityReports(reports: any[]) {
-    this.saveData(this.SECURITY_REPORTS_KEY, reports);
-  }
+  // Security Reports
+  getSecurityReports: (): SecurityReport[] => getFromStorage(STORAGE_KEYS.SECURITY_REPORTS, []),
+  saveSecurityReports: (reports: SecurityReport[]): void => saveToStorage(STORAGE_KEYS.SECURITY_REPORTS, reports),
 
   // Security Report Sections
-  getSecurityReportSections() {
-    return this.getData(this.SECURITY_REPORT_SECTIONS_KEY, []);
-  }
-
-  saveSecurityReportSections(sections: any[]) {
-    this.saveData(this.SECURITY_REPORT_SECTIONS_KEY, sections);
-  }
-
-  // Exportar todos los datos
-  exportAllData(): string {
-    const allData = {
-      users: this.getUsers(),
-      sectionUsers: this.getSectionUsers(),
-      rooms: this.getRooms(),
-      roomConfigs: this.getRoomConfigs(),
-      roomReservations: this.getRoomReservations(),
-      vehicles: this.getVehicles(),
-      vehicleReservations: this.getVehicleReservations(),
-      stockMovements: this.getStockMovements(),
-      maintenanceEquipment: this.getMaintenanceEquipment(),
-      securityReports: this.getSecurityReports()
-    };
-    return JSON.stringify(allData, null, 2);
-  }
-
-  // Importar datos
-  importData(jsonData: string): boolean {
-    try {
-      const data = JSON.parse(jsonData);
-      
-      if (data.users) this.saveUsers(data.users);
-      if (data.sectionUsers) this.saveSectionUsers(data.sectionUsers);
-      if (data.rooms) this.saveRooms(data.rooms);
-      if (data.roomConfigs) this.saveRoomConfigs(data.roomConfigs);
-      if (data.roomReservations) this.saveRoomReservations(data.roomReservations);
-      if (data.vehicles) this.saveVehicles(data.vehicles);
-      if (data.vehicleReservations) this.saveVehicleReservations(data.vehicleReservations);
-      if (data.stockMovements) this.saveStockMovements(data.stockMovements);
-      if (data.maintenanceEquipment) this.saveMaintenanceEquipment(data.maintenanceEquipment);
-      if (data.securityReports) this.saveSecurityReports(data.securityReports);
-      
-      return true;
-    } catch (error) {
-      console.error('Error importing data:', error);
-      return false;
-    }
-  }
-
-  // Limpiar todos los datos
-  clearAllData(): void {
-    const keys = [
-      this.USERS_KEY,
-      this.SECTION_USERS_KEY,
-      this.ROOMS_KEY,
-      this.ROOM_CONFIGS_KEY,
-      this.ROOM_RESERVATIONS_KEY,
-      this.VEHICLES_KEY,
-      this.VEHICLE_RESERVATIONS_KEY,
-      this.STOCK_MOVEMENTS_KEY,
-      this.MAINTENANCE_EQUIPMENT_KEY,
-      this.SECURITY_REPORTS_KEY
-    ];
-    
-    keys.forEach(key => localStorage.removeItem(key));
-  }
-}
-
-export const dataService = new DataService();
+  getSecurityReportSections: (): SecurityReportSection[] => getFromStorage(STORAGE_KEYS.SECURITY_REPORT_SECTIONS, []),
+  saveSecurityReportSections: (sections: SecurityReportSection[]): void => saveToStorage(STORAGE_KEYS.SECURITY_REPORT_SECTIONS, sections)
+};
