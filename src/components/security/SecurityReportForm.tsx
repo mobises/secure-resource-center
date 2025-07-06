@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, FileText } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { SecurityReport, SecurityReportSection } from "@/types";
+import { SecurityReport, SecurityReportSection, SecurityReportResponse } from "@/types";
 import { useSecurityReportSections } from "@/hooks/useLocalData";
 
 interface SecurityReportFormProps {
@@ -54,6 +55,20 @@ const SecurityReportForm: React.FC<SecurityReportFormProps> = ({ onAddReport }) 
     const totalScore = Object.values(responses).reduce((sum, score) => sum + score, 0);
     const maxScore = totalQuestions * 5;
 
+    // Convert responses object to SecurityReportResponse array
+    const reportResponses: SecurityReportResponse[] = Object.entries(responses).map(([questionId, answer]) => {
+      const question = sections
+        .flatMap(section => section.subsections)
+        .find(sub => sub.id === questionId);
+      
+      return {
+        questionId,
+        question: question?.question || '',
+        answer,
+        maxScore: 5
+      };
+    });
+
     const report: SecurityReport = {
       id: Date.now().toString(),
       reportDate: new Date().toISOString().split('T')[0],
@@ -61,7 +76,7 @@ const SecurityReportForm: React.FC<SecurityReportFormProps> = ({ onAddReport }) 
       createdBy: 'Usuario Actual',
       totalScore,
       maxScore,
-      responses,
+      responses: reportResponses,
       sections: sections,
       status: 'open',
       severity: totalScore / maxScore >= 0.8 ? 'low' : totalScore / maxScore >= 0.6 ? 'medium' : 'high',

@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu, X, Calendar, Car, Shield, Computer, Database } from "lucide-react";
-import { User } from "@/types";
+import { User, SectionUser } from "@/types";
 
 interface LayoutProps {
   children: React.ReactNode;
-  user: User;
+  user: User | SectionUser;
   onLogout: () => void;
   currentModule: string;
   onModuleChange: (module: string) => void;

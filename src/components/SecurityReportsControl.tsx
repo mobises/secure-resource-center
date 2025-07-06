@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Shield, Plus, Settings, FileText, BarChart3 } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { SectionUser, SecurityReportSection, SecurityReport } from "@/types";
+import { SectionUser, SecurityReportSection, SecurityReport, SecurityReportResponse } from "@/types";
 
 interface SecurityReportsControlProps {
   currentUser: SectionUser;
@@ -80,10 +80,24 @@ const SecurityReportsControl: React.FC<SecurityReportsControlProps> = ({ current
     const totalScore = Object.values(currentReport).reduce((acc, score) => acc + score, 0);
     const maxScore = totalQuestions * 5;
 
+    // Convert responses object to SecurityReportResponse array
+    const responses: SecurityReportResponse[] = Object.entries(currentReport).map(([questionId, answer]) => {
+      const question = reportSections
+        .flatMap(section => section.subsections)
+        .find(sub => sub.id === questionId);
+      
+      return {
+        questionId,
+        question: question?.question || '',
+        answer,
+        maxScore: 5
+      };
+    });
+
     const report: SecurityReport = {
       id: Date.now().toString(),
       reportDate: new Date().toISOString().split('T')[0],
-      responses: currentReport,
+      responses,
       totalScore,
       maxScore,
       createdBy: currentUser.name,
