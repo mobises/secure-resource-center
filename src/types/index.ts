@@ -1,4 +1,3 @@
-
 // Tipos principales del sistema
 export interface User {
   id: string;
@@ -116,7 +115,10 @@ export interface VehicleReservation {
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
   createdAt: string;
   destination?: string;
-  driverLicense?: string;
+  driverLicense?: string; // Mantenemos para compatibilidad
+  licensePlate?: string; // Nueva propiedad para matrícula
+  startTime?: string; // Nueva propiedad para hora de inicio
+  endTime?: string; // Nueva propiedad para hora de fin
 }
 
 export interface StockMovement {

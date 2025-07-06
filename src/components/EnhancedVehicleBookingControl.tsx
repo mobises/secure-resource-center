@@ -22,9 +22,11 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
     vehicleId: '',
     startDate: '',
     endDate: '',
+    startTime: '',
+    endTime: '',
     purpose: '',
     destination: '',
-    driverLicense: ''
+    licensePlate: ''
   });
 
   const handleAddReservation = () => {
@@ -45,7 +47,8 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
       vehicleName: selectedVehicle ? (selectedVehicle.name || `${selectedVehicle.brand || ''} ${selectedVehicle.model || ''}`) : '',
       status: 'pending',
       createdAt: new Date().toISOString(),
-      ...newReservation
+      ...newReservation,
+      driverLicense: newReservation.licensePlate // Manteniendo compatibilidad pero usando el nuevo nombre
     };
 
     updateReservations([...reservations, reservation]);
@@ -53,9 +56,11 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
       vehicleId: '',
       startDate: '',
       endDate: '',
+      startTime: '',
+      endTime: '',
       purpose: '',
       destination: '',
-      driverLicense: ''
+      licensePlate: ''
     });
 
     toast({
@@ -102,12 +107,12 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
             </select>
           </div>
           <div>
-            <Label htmlFor="driverLicense">Licencia de Conducir</Label>
+            <Label htmlFor="licensePlate">Matrícula del Conductor</Label>
             <Input
-              id="driverLicense"
-              value={newReservation.driverLicense}
-              onChange={(e) => setNewReservation({...newReservation, driverLicense: e.target.value})}
-              placeholder="Número de licencia"
+              id="licensePlate"
+              value={newReservation.licensePlate}
+              onChange={(e) => setNewReservation({...newReservation, licensePlate: e.target.value})}
+              placeholder="Matrícula del conductor"
             />
           </div>
           <div>
@@ -120,12 +125,30 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
             />
           </div>
           <div>
+            <Label htmlFor="startTime">Hora de Inicio</Label>
+            <Input
+              id="startTime"
+              type="time"
+              value={newReservation.startTime}
+              onChange={(e) => setNewReservation({...newReservation, startTime: e.target.value})}
+            />
+          </div>
+          <div>
             <Label htmlFor="endDate">Fecha de Fin</Label>
             <Input
               id="endDate"
               type="date"
               value={newReservation.endDate}
               onChange={(e) => setNewReservation({...newReservation, endDate: e.target.value})}
+            />
+          </div>
+          <div>
+            <Label htmlFor="endTime">Hora de Fin</Label>
+            <Input
+              id="endTime"
+              type="time"
+              value={newReservation.endTime}
+              onChange={(e) => setNewReservation({...newReservation, endTime: e.target.value})}
             />
           </div>
           <div>
@@ -172,7 +195,7 @@ const EnhancedVehicleBookingControl: React.FC<EnhancedVehicleBookingControlProps
                   </div>
                   <p>Destino: {reservation.destination}</p>
                   <p>Propósito: {reservation.purpose}</p>
-                  <p>Licencia: {reservation.driverLicense}</p>
+                  <p>Matrícula: {reservation.driverLicense || reservation.licensePlate}</p>
                 </div>
               </div>
               <span className={`px-2 py-1 rounded-full text-xs ${

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Calendar, Plus, Clock, MapPin, Users } from "lucide-react";
+import { Calendar, Plus, Clock, MapPin, Users, Package } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { SectionUser, RoomReservation } from "@/types";
 import { useRoomConfigs, useRoomReservations } from "@/hooks/useLocalData";
@@ -29,6 +29,8 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
 
   // Solo mostrar salas activas
   const activeRooms = roomConfigs.filter(room => room.active);
+
+  const selectedRoom = activeRooms.find(r => r.id === newReservation.roomId);
 
   const handleAddReservation = () => {
     if (!newReservation.roomId || !newReservation.date || !newReservation.startTime || !newReservation.endTime) {
@@ -137,7 +139,7 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
                 <select
                   id="room"
                   value={newReservation.roomId}
-                  onChange={(e) => setNewReservation({...newReservation, roomId: e.target.value})}
+                  onChange={(e) => setNewReservation({...newReservation, roomId: e.target.value, attendees: 1})}
                   className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md"
                 >
                   <option value="">Seleccionar sala</option>
@@ -177,14 +179,22 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
                 />
               </div>
               <div>
-                <Label htmlFor="attendees">Asistentes</Label>
-                <Input
+                <Label htmlFor="attendees">Número de Asistentes</Label>
+                <select
                   id="attendees"
-                  type="number"
-                  min="1"
                   value={newReservation.attendees}
                   onChange={(e) => setNewReservation({...newReservation, attendees: parseInt(e.target.value)})}
-                />
+                  className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md"
+                  disabled={!selectedRoom}
+                >
+                  {selectedRoom ? (
+                    Array.from({ length: selectedRoom.maxCapacity }, (_, i) => i + 1).map(num => (
+                      <option key={num} value={num}>{num}</option>
+                    ))
+                  ) : (
+                    <option value={1}>Selecciona una sala primero</option>
+                  )}
+                </select>
               </div>
               <div>
                 <Label htmlFor="purpose">Propósito</Label>
@@ -196,6 +206,40 @@ const RoomBookingControl: React.FC<RoomBookingControlProps> = ({ currentUser, is
                 />
               </div>
             </div>
+            
+            {/* Mostrar detalles de la sala seleccionada */}
+            {selectedRoom && (
+              <Card className="mt-4 p-4 bg-blue-50">
+                <h5 className="font-semibold mb-2">Detalles de la Sala</h5>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>Ubicación: {selectedRoom.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    <span>Capacidad: {selectedRoom.maxCapacity} personas</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4" />
+                    <span>Recursos: {selectedRoom.resources?.length || 0}</span>
+                  </div>
+                </div>
+                {selectedRoom.resources && selectedRoom.resources.length > 0 && (
+                  <div className="mt-3">
+                    <p className="font-medium text-sm mb-2">Recursos disponibles:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedRoom.resources.map((resource) => (
+                        <span key={resource.id} className="px-2 py-1 bg-white rounded text-xs">
+                          {resource.name} ({resource.quantity})
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </Card>
+            )}
+            
             <Button onClick={handleAddReservation} className="mt-4">
               <Plus className="h-4 w-4 mr-2" />
               Crear Reserva

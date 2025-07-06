@@ -20,7 +20,7 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
   const [selectedRoom, setSelectedRoom] = useState<RoomConfig | null>(null);
   const [showRoomDialog, setShowRoomDialog] = useState(false);
   const [showResourceDialog, setShowResourceDialog] = useState(false);
-  const [roomResources, setRoomResources] = useState<RoomResource[]>([]);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const [newRoom, setNewRoom] = useState({
     name: '',
@@ -28,6 +28,8 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
     location: '',
     active: true
   });
+
+  const [editRoom, setEditRoom] = useState<RoomConfig | null>(null);
 
   const [newResource, setNewResource] = useState({
     name: '',
@@ -72,6 +74,19 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
     });
   };
 
+  const handleEditRoom = (room: RoomConfig) => {
+    setEditRoom({ ...room });
+    setShowEditDialog(true);
+  };
+
+  const handleSaveEditRoom = () => {
+    if (editRoom) {
+      handleUpdateRoom(editRoom);
+      setShowEditDialog(false);
+      setEditRoom(null);
+    }
+  };
+
   const handleDeleteRoom = (roomId: string) => {
     if (window.confirm('¿Estás seguro de que quieres eliminar esta sala?')) {
       const updated = roomConfigs.filter(room => room.id !== roomId);
@@ -84,7 +99,7 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
   };
 
   const handleAddResource = () => {
-    if (!newResource.name.trim()) {
+    if (!newResource.name.trim() || !selectedRoom) {
       toast({
         title: "Error",
         description: "El nombre del objeto es requerido",
@@ -98,7 +113,18 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
       ...newResource
     };
 
-    setRoomResources([...roomResources, resource]);
+    const updatedRoom = {
+      ...selectedRoom,
+      resources: [...(selectedRoom.resources || []), resource]
+    };
+
+    // Actualizar la sala en la lista
+    const updatedRooms = roomConfigs.map(room => 
+      room.id === selectedRoom.id ? updatedRoom : room
+    );
+    
+    updateRoomConfigs(updatedRooms);
+    setSelectedRoom(updatedRoom);
     setNewResource({ name: '', quantity: 1, type: 'equipment' });
     setShowResourceDialog(false);
 
@@ -108,11 +134,26 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
     });
   };
 
-  const handleUpdateRoomResources = (roomId: string, resources: RoomResource[]) => {
-    const updated = roomConfigs.map(room => 
-      room.id === roomId ? { ...room, resources } : room
+  const handleDeleteResource = (resourceId: string) => {
+    if (!selectedRoom) return;
+
+    const updatedResources = (selectedRoom.resources || []).filter(r => r.id !== resourceId);
+    const updatedRoom = {
+      ...selectedRoom,
+      resources: updatedResources
+    };
+
+    const updatedRooms = roomConfigs.map(room => 
+      room.id === selectedRoom.id ? updatedRoom : room
     );
-    updateRoomConfigs(updated);
+    
+    updateRoomConfigs(updatedRooms);
+    setSelectedRoom(updatedRoom);
+
+    toast({
+      title: "Éxito",
+      description: "Objeto eliminado correctamente"
+    });
   };
 
   if (!isAdmin) {
@@ -200,17 +241,24 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
-                          setSelectedRoom(room);
-                          setRoomResources(room.resources || []);
-                        }}
+                        onClick={() => setSelectedRoom(room)}
+                        title="Ver recursos"
                       >
                         <Package className="h-4 w-4" />
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
+                        onClick={() => handleEditRoom(room)}
+                        title="Editar sala"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={() => handleUpdateRoom({...room, active: !room.active})}
+                        title={room.active ? "Desactivar" : "Activar"}
                       >
                         <Lock className={`h-4 w-4 ${room.active ? 'text-green-600' : 'text-red-600'}`} />
                       </Button>
@@ -218,6 +266,7 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
                         size="sm"
                         variant="outline"
                         onClick={() => handleDeleteRoom(room.id)}
+                        title="Eliminar sala"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -296,7 +345,7 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
                 </Dialog>
               </div>
               <div className="space-y-3">
-                {roomResources.map((resource, index) => (
+                {(selectedRoom.resources || []).map((resource) => (
                   <div key={resource.id} className="flex justify-between items-center p-3 border rounded">
                     <div>
                       <p className="font-medium">{resource.name}</p>
@@ -310,16 +359,15 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => {
-                        const updated = roomResources.filter(r => r.id !== resource.id);
-                        setRoomResources(updated);
-                        handleUpdateRoomResources(selectedRoom.id, updated);
-                      }}
+                      onClick={() => handleDeleteResource(resource.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
+                {(!selectedRoom.resources || selectedRoom.resources.length === 0) && (
+                  <p className="text-gray-500 text-center py-4">No hay objetos configurados</p>
+                )}
               </div>
             </Card>
           ) : (
@@ -330,6 +378,53 @@ const RoomConfiguration: React.FC<RoomConfigurationProps> = ({ isAdmin }) => {
           )}
         </TabsContent>
       </Tabs>
+
+      {/* Dialog para editar sala */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Sala</DialogTitle>
+          </DialogHeader>
+          {editRoom && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="editRoomName">Nombre de la Sala</Label>
+                <Input
+                  id="editRoomName"
+                  value={editRoom.name}
+                  onChange={(e) => setEditRoom({...editRoom, name: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="editCapacity">Capacidad Máxima</Label>
+                <Input
+                  id="editCapacity"
+                  type="number"
+                  min="1"
+                  value={editRoom.maxCapacity}
+                  onChange={(e) => setEditRoom({...editRoom, maxCapacity: parseInt(e.target.value)})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="editLocation">Ubicación</Label>
+                <Input
+                  id="editLocation"
+                  value={editRoom.location}
+                  onChange={(e) => setEditRoom({...editRoom, location: e.target.value})}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleSaveEditRoom} className="flex-1">
+                  Guardar Cambios
+                </Button>
+                <Button variant="outline" onClick={() => setShowEditDialog(false)} className="flex-1">
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

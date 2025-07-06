@@ -22,8 +22,11 @@ const VehicleCalendarView = () => {
   
   const [newReservation, setNewReservation] = useState({
     endDate: '',
+    startTime: '',
+    endTime: '',
     purpose: '',
-    destination: ''
+    destination: '',
+    licensePlate: ''
   });
 
   const availableVehicles = vehicles.filter(vehicle => vehicle.status === 'available');
@@ -50,8 +53,11 @@ const VehicleCalendarView = () => {
     setSelectedVehicle('');
     setNewReservation({
       endDate: '',
+      startTime: '',
+      endTime: '',
       purpose: '',
-      destination: ''
+      destination: '',
+      licensePlate: ''
     });
     setShowReservationDialog(true);
   };
@@ -61,7 +67,7 @@ const VehicleCalendarView = () => {
   };
 
   const handleCreateReservation = () => {
-    if (!selectedVehicle || !newReservation.endDate) {
+    if (!selectedVehicle || !newReservation.endDate || !newReservation.startTime || !newReservation.endTime) {
       toast({
         title: "Error",
         description: "Por favor, completa todos los campos requeridos",
@@ -80,6 +86,7 @@ const VehicleCalendarView = () => {
       startDate: selectedDate,
       status: 'pending',
       createdAt: new Date().toISOString(),
+      driverLicense: newReservation.licensePlate, // Manteniendo compatibilidad
       ...newReservation
     };
 
@@ -88,8 +95,11 @@ const VehicleCalendarView = () => {
     setShowReservationDialog(false);
     setNewReservation({
       endDate: '',
+      startTime: '',
+      endTime: '',
       purpose: '',
-      destination: ''
+      destination: '',
+      licensePlate: ''
     });
 
     toast({
@@ -224,6 +234,27 @@ const VehicleCalendarView = () => {
 
             {selectedVehicle && (
               <>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startTime">Hora de Inicio</Label>
+                    <Input
+                      id="startTime"
+                      type="time"
+                      value={newReservation.startTime}
+                      onChange={(e) => setNewReservation({...newReservation, startTime: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="endTime">Hora de Fin (día final)</Label>
+                    <Input
+                      id="endTime"
+                      type="time"
+                      value={newReservation.endTime}
+                      onChange={(e) => setNewReservation({...newReservation, endTime: e.target.value})}
+                    />
+                  </div>
+                </div>
+                
                 <div>
                   <Label htmlFor="endDate">Fecha de Fin</Label>
                   <Input
@@ -232,6 +263,16 @@ const VehicleCalendarView = () => {
                     value={newReservation.endDate}
                     onChange={(e) => setNewReservation({...newReservation, endDate: e.target.value})}
                     min={selectedDate}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="licensePlate">Matrícula del Conductor</Label>
+                  <Input
+                    id="licensePlate"
+                    value={newReservation.licensePlate}
+                    onChange={(e) => setNewReservation({...newReservation, licensePlate: e.target.value})}
+                    placeholder="Matrícula del conductor"
                   />
                 </div>
                 

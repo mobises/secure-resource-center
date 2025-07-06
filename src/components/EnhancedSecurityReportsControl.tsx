@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Shield } from "lucide-react";
-import { useSecurityReports } from "@/hooks/useLocalData";
+import { useSecurityReports, useSecurityReportSections } from "@/hooks/useLocalData";
 import { SecurityReport } from "@/types";
 import SecurityReportForm from "./security/SecurityReportForm";
 import SecurityReportsList from "./security/SecurityReportsList";
@@ -10,6 +11,7 @@ import SecurityReportConfig from "./security/SecurityReportConfig";
 
 const EnhancedSecurityReportsControl = () => {
   const { data: reports, updateData: updateReports } = useSecurityReports();
+  const { data: sections, updateData: updateSections } = useSecurityReportSections();
 
   const handleAddReport = (report: SecurityReport) => {
     updateReports([...reports, report]);
@@ -44,8 +46,8 @@ const EnhancedSecurityReportsControl = () => {
 
         <TabsContent value="config">
           <SecurityReportConfig 
-            sections={[]} 
-            onUpdateSections={() => {}} 
+            sections={sections} 
+            onUpdateSections={updateSections} 
           />
         </TabsContent>
       </Tabs>
