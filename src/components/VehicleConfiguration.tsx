@@ -30,9 +30,7 @@ const VehicleConfiguration: React.FC<VehicleConfigurationProps> = ({ isAdmin }) 
     const updatedVehicles = vehicles.map(vehicle => {
       if (vehicle.id === editingVehicle) {
         // Ensure all required properties are present with proper types
-        const updatedVehicle: Vehicle = {
-          ...vehicle,
-          ...editData,
+        const updatedVehicle = {
           id: vehicle.id,
           name: editData.name || vehicle.name || `${vehicle.brand || ''} ${vehicle.model || ''}`,
           brand: editData.brand || vehicle.brand || '',
@@ -41,7 +39,7 @@ const VehicleConfiguration: React.FC<VehicleConfigurationProps> = ({ isAdmin }) 
           licensePlate: editData.licensePlate || vehicle.licensePlate || '',
           type: editData.type || vehicle.type,
           status: editData.status || vehicle.status,
-          capacity: editData.capacity || vehicle.capacity
+          capacity: editData.capacity || vehicle.capacity || 5
         };
         return updatedVehicle;
       }
@@ -66,7 +64,7 @@ const VehicleConfiguration: React.FC<VehicleConfigurationProps> = ({ isAdmin }) 
   const handleStatusChange = (vehicleId: string, status: Vehicle['status']) => {
     const updatedVehicles = vehicles.map(vehicle => {
       if (vehicle.id === vehicleId) {
-        const updatedVehicle: Vehicle = {
+        const updatedVehicle = {
           ...vehicle,
           status,
           name: vehicle.name || `${vehicle.brand || ''} ${vehicle.model || ''}`,
@@ -74,7 +72,8 @@ const VehicleConfiguration: React.FC<VehicleConfigurationProps> = ({ isAdmin }) 
           model: vehicle.model || '',
           year: vehicle.year || new Date().getFullYear(),
           licensePlate: vehicle.licensePlate || '',
-          type: vehicle.type
+          type: vehicle.type,
+          capacity: vehicle.capacity || 5
         };
         return updatedVehicle;
       }

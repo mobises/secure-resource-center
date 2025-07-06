@@ -19,6 +19,7 @@ const EnhancedVehicleConfig = () => {
     year: new Date().getFullYear(),
     licensePlate: '',
     type: '',
+    capacity: 5,
     status: 'available' as const
   });
 
@@ -44,6 +45,7 @@ const EnhancedVehicleConfig = () => {
       year: newVehicle.year,
       licensePlate: newVehicle.licensePlate,
       type: newVehicle.type,
+      capacity: newVehicle.capacity,
       status: 'available' as const
     };
 
@@ -56,6 +58,7 @@ const EnhancedVehicleConfig = () => {
       year: new Date().getFullYear(),
       licensePlate: '',
       type: '',
+      capacity: 5,
       status: 'available'
     });
 
@@ -90,7 +93,8 @@ const EnhancedVehicleConfig = () => {
       year: editingVehicle.year || new Date().getFullYear(),
       licensePlate: editingVehicle.licensePlate || '',
       type: editingVehicle.type,
-      status: 'available' as const
+      capacity: editingVehicle.capacity || 5,
+      status: editingVehicle.status
     };
 
     const updatedVehicles = vehicles.map(v => 
@@ -177,6 +181,17 @@ const EnhancedVehicleConfig = () => {
               placeholder="Sedan, SUV, Van, etc."
             />
           </div>
+          <div>
+            <Label htmlFor="capacity">Capacidad</Label>
+            <Input
+              id="capacity"
+              type="number"
+              value={newVehicle.capacity}
+              onChange={(e) => setNewVehicle({...newVehicle, capacity: parseInt(e.target.value)})}
+              min="1"
+              placeholder="5"
+            />
+          </div>
         </div>
         <Button onClick={handleAddVehicle} className="mt-4">
           <Plus className="h-4 w-4 mr-2" />
@@ -234,6 +249,15 @@ const EnhancedVehicleConfig = () => {
                       onChange={(e) => setEditingVehicle({...editingVehicle, type: e.target.value})}
                     />
                   </div>
+                  <div>
+                    <Label>Capacidad</Label>
+                    <Input
+                      type="number"
+                      value={editingVehicle.capacity || 5}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, capacity: parseInt(e.target.value)})}
+                      min="1"
+                    />
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={handleSaveEdit}>Guardar</Button>
@@ -252,6 +276,7 @@ const EnhancedVehicleConfig = () => {
                     <p className="text-sm text-gray-600">{vehicle.type}</p>
                   </div>
                   <div>
+                    <p className="text-sm text-gray-600">Capacidad: {vehicle.capacity || 'No especificada'}</p>
                     <span className={`px-2 py-1 rounded-full text-xs ${
                       vehicle.status === 'available' 
                         ? 'bg-green-100 text-green-800' 
