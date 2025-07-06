@@ -27,9 +27,23 @@ const VehicleConfiguration: React.FC<VehicleConfigurationProps> = ({ isAdmin }) 
   const handleSave = () => {
     if (!editingVehicle) return;
 
-    const updatedVehicles = vehicles.map(vehicle =>
-      vehicle.id === editingVehicle ? { ...vehicle, ...editData } as Vehicle : vehicle
-    );
+    const updatedVehicles = vehicles.map(vehicle => {
+      if (vehicle.id === editingVehicle) {
+        // Ensure all required properties are present with proper types
+        return {
+          ...vehicle,
+          ...editData,
+          name: editData.name || vehicle.name || `${vehicle.brand || ''} ${vehicle.model || ''}`,
+          brand: editData.brand || vehicle.brand || '',
+          model: editData.model || vehicle.model || '',
+          year: editData.year || vehicle.year || new Date().getFullYear(),
+          licensePlate: editData.licensePlate || vehicle.licensePlate || '',
+          type: editData.type || vehicle.type,
+          status: editData.status || vehicle.status
+        } as Vehicle;
+      }
+      return vehicle;
+    });
 
     updateVehicles(updatedVehicles);
     setEditingVehicle(null);
@@ -47,9 +61,22 @@ const VehicleConfiguration: React.FC<VehicleConfigurationProps> = ({ isAdmin }) 
   };
 
   const handleStatusChange = (vehicleId: string, status: Vehicle['status']) => {
-    const updatedVehicles = vehicles.map(vehicle =>
-      vehicle.id === vehicleId ? { ...vehicle, status } : vehicle
-    );
+    const updatedVehicles = vehicles.map(vehicle => {
+      if (vehicle.id === vehicleId) {
+        return {
+          ...vehicle,
+          status,
+          name: vehicle.name || `${vehicle.brand || ''} ${vehicle.model || ''}`,
+          brand: vehicle.brand || '',
+          model: vehicle.model || '',
+          year: vehicle.year || new Date().getFullYear(),
+          licensePlate: vehicle.licensePlate || '',
+          type: vehicle.type
+        } as Vehicle;
+      }
+      return vehicle;
+    });
+    
     updateVehicles(updatedVehicles);
 
     toast({
