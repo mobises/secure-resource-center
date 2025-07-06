@@ -4,17 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { LogIn } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
-import { LogIn, Loader2 } from "lucide-react";
 
 interface LoginProps {
-  onLogin: (userId: string, password: string) => Promise<boolean>;
+  onLogin: (userId: string, password: string) => Promise<{ success: boolean; message?: string }>;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,114 +28,76 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
     
     try {
-      const success = await onLogin(userId, password);
+      const result = await onLogin(userId, password);
       
-      if (!success) {
+      if (!result.success) {
         toast({
-          title: "Error de autenticación",
-          description: "Credenciales inválidas. Por favor, verifica tu ID de usuario y contraseña.",
+          title: "Error de acceso",
+          description: result.message || "Credenciales incorrectas",
           variant: "destructive"
         });
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         title: "Error",
-        description: "Ha ocurrido un error durante el inicio de sesión",
+        description: "Error al iniciar sesión",
         variant: "destructive"
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-blue-50 to-sky-200 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="mb-6">
-            <h1 className="text-6xl font-bold text-sky-600 mb-2">MOBIS</h1>
-            <div className="w-24 h-1 bg-sky-400 mx-auto rounded-full"></div>
-          </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
-            Sistema de Gestión
-          </h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Ingresa tus credenciales para acceder
-          </p>
-        </div>
-        
-        <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
-          <CardHeader className="bg-gradient-to-r from-sky-500 to-blue-600 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2 justify-center">
-              <LogIn className="h-5 w-5" />
-              Iniciar Sesión
-            </CardTitle>
-            <CardDescription className="text-sky-100 text-center">
-              Accede a tu cuenta para continuar
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <Label htmlFor="userId" className="text-gray-700 font-medium">ID de Usuario</Label>
-                <Input
-                  id="userId"
-                  type="text"
-                  autoComplete="username"
-                  required
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
-                  placeholder="Tu ID de usuario"
-                  disabled={loading}
-                  className="mt-1 border-sky-200 focus:border-sky-500 focus:ring-sky-500"
-                />
-              </div>
-              
-              <div>
-                <Label htmlFor="password" className="text-gray-700 font-medium">Contraseña</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Tu contraseña"
-                  disabled={loading}
-                  className="mt-1 border-sky-200 focus:border-sky-500 focus:ring-sky-500"
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-medium py-2.5"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Iniciando sesión...
-                  </>
-                ) : (
-                  <>
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Iniciar Sesión
-                  </>
-                )}
-              </Button>
-            </form>
-            
-            <div className="mt-6 text-center">
-              <p className="text-xs text-gray-500">
-                Demo: Usa cualquier ID de usuario y contraseña para acceder
-              </p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl text-center">MOBIS</CardTitle>
+          <CardDescription className="text-center">
+            Accede a tu cuenta con tu ID de usuario y contraseña
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="userId">ID de Usuario</Label>
+              <Input
+                id="userId"
+                type="text"
+                placeholder="Ingresa tu ID de usuario"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                disabled={isLoading}
+              />
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Ingresa tu contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                "Iniciando sesión..."
+              ) : (
+                <>
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Iniciar Sesión
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

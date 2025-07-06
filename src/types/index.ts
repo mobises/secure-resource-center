@@ -7,6 +7,11 @@ export interface User {
   password: string;
   role: 'admin' | 'user';
   permissions: string[];
+  dashboardAccess?: boolean;
+  blockedUntil?: string;
+  failedLoginAttempts?: number;
+  lastPasswordChange?: string;
+  passwordHistory?: string[];
 }
 
 export interface SectionUser {
@@ -14,6 +19,11 @@ export interface SectionUser {
   name: string;
   userId: string;
   password: string;
+  dashboardAccess: boolean;
+  blockedUntil?: string;
+  failedLoginAttempts?: number;
+  lastPasswordChange?: string;
+  passwordHistory?: string[];
   sectionRoles: {
     stock: 'admin' | 'user' | null;
     maintenance: 'admin' | 'user' | null;
@@ -85,6 +95,7 @@ export interface RoomResource {
 }
 
 export interface RoomScheduleConfig {
+  year: number;
   month: number;
   dayOfWeek: number; // 0 = Lunes, 6 = Domingo
   startTime: string;
@@ -92,16 +103,35 @@ export interface RoomScheduleConfig {
   enabled: boolean;
 }
 
+export interface Holiday {
+  id: string;
+  day: number;
+  month: number;
+  year: number;
+  comment: string;
+}
+
+export interface VehicleType {
+  id: string;
+  name: string;
+  fuelType: 'electric' | 'gasoline' | 'diesel' | 'hybrid' | 'pluginHybrid';
+  maxRange?: number; // Kilometros maximos antes de recargar/repostar
+}
+
 export interface Vehicle {
   id: string;
   name?: string;
   type: string;
+  typeId?: string;
   capacity?: number;
   status: 'available' | 'in_use' | 'maintenance' | 'unavailable';
   brand?: string;
   model?: string;
   licensePlate?: string;
   year?: number;
+  maxReservationDays?: number;
+  currentKilometers?: number;
+  fuelType?: 'electric' | 'gasoline' | 'diesel' | 'hybrid' | 'pluginHybrid';
 }
 
 export interface VehicleReservation {
@@ -113,13 +143,17 @@ export interface VehicleReservation {
   startDate: string;
   endDate: string;
   purpose: string;
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed';
   createdAt: string;
   destination?: string;
   driverLicense?: string; // Mantenemos para compatibilidad
-  licensePlate?: string; // Nueva propiedad para matrícula
-  startTime?: string; // Nueva propiedad para hora de inicio
-  endTime?: string; // Nueva propiedad para hora de fin
+  licensePlate?: string; // Matrícula del vehículo
+  startTime?: string;
+  endTime?: string;
+  startKilometers?: number;
+  endKilometers?: number;
+  fuelPercentage?: number; // Para vehículos no eléctricos
+  batteryPercentage?: number; // Para vehículos eléctricos
 }
 
 export interface StockMovement {
