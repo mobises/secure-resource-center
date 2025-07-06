@@ -24,9 +24,11 @@ const RoomScheduleConfiguration = () => {
     // Inicializar configuración si no existe
     if (scheduleConfig.length === 0) {
       const initialConfig: RoomScheduleConfig[] = [];
+      const currentYear = new Date().getFullYear();
       for (let month = 1; month <= 12; month++) {
         for (let dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
           initialConfig.push({
+            year: currentYear,
             month,
             dayOfWeek,
             startTime: '09:00',

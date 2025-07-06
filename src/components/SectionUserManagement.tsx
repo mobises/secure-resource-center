@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +44,7 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
       name: newUser.name,
       userId: newUser.userId,
       password: newUser.password,
+      dashboardAccess: true, // Default to true for new users
       sectionRoles: {
         stock: newUser.stockRole,
         maintenance: newUser.maintenanceRole,

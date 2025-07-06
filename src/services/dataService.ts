@@ -56,7 +56,8 @@ const defaultUsers: User[] = [
     userId: 'admin',
     password: 'admin123',
     role: 'admin',
-    permissions: ['all']
+    permissions: ['all'],
+    dashboardAccess: true
   },
   {
     id: '2',
@@ -64,7 +65,8 @@ const defaultUsers: User[] = [
     userId: 'user',
     password: 'user123',
     role: 'user',
-    permissions: ['read']
+    permissions: ['read'],
+    dashboardAccess: true
   }
 ];
 
@@ -74,6 +76,7 @@ const defaultSectionUsers: SectionUser[] = [
     name: 'Section Admin',
     userId: 'section_admin',
     password: 'admin123',
+    dashboardAccess: true,
     sectionRoles: {
       stock: 'admin',
       maintenance: 'admin',
@@ -141,10 +144,20 @@ export const dataService = {
   // Users
   getUsers: (): User[] => getFromStorage(STORAGE_KEYS.USERS, defaultUsers),
   saveUsers: (users: User[]): void => saveToStorage(STORAGE_KEYS.USERS, users),
+  updateUser: (updatedUser: User): void => {
+    const users = getFromStorage(STORAGE_KEYS.USERS, defaultUsers);
+    const updatedUsers = users.map(user => user.id === updatedUser.id ? updatedUser : user);
+    saveToStorage(STORAGE_KEYS.USERS, updatedUsers);
+  },
 
   // Section Users
   getSectionUsers: (): SectionUser[] => getFromStorage(STORAGE_KEYS.SECTION_USERS, defaultSectionUsers),
   saveSectionUsers: (users: SectionUser[]): void => saveToStorage(STORAGE_KEYS.SECTION_USERS, users),
+  updateSectionUser: (updatedUser: SectionUser): void => {
+    const users = getFromStorage(STORAGE_KEYS.SECTION_USERS, defaultSectionUsers);
+    const updatedUsers = users.map(user => user.id === updatedUser.id ? updatedUser : user);
+    saveToStorage(STORAGE_KEYS.SECTION_USERS, updatedUsers);
+  },
 
   // Rooms
   getRooms: (): Room[] => getFromStorage(STORAGE_KEYS.ROOMS, defaultRooms),

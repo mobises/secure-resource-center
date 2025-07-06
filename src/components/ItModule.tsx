@@ -20,6 +20,7 @@ const ItModule = () => {
     name: 'Admin IT',
     userId: 'admin001',
     password: '12345',
+    dashboardAccess: true,
     sectionRoles: {
       stock: 'admin' as const,
       maintenance: 'admin' as const,
