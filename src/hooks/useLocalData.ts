@@ -86,6 +86,14 @@ export const useRoomReservations = () => {
   );
 };
 
+export const useRoomScheduleConfig = () => {
+  return useLocalData(
+    'roomScheduleConfig',
+    () => dataService.getRoomScheduleConfig(),
+    (config) => dataService.saveRoomScheduleConfig(config)
+  );
+};
+
 export const useVehicles = () => {
   return useLocalData(
     'vehicles',
@@ -123,5 +131,13 @@ export const useSecurityReports = () => {
     'securityReports',
     () => dataService.getSecurityReports(),
     (reports) => dataService.saveSecurityReports(reports)
+  );
+};
+
+export const useSecurityReportSections = () => {
+  return useLocalData(
+    'securityReportSections',
+    () => dataService.getSecurityReportSections(),
+    (sections) => dataService.saveSecurityReportSections(sections)
   );
 };

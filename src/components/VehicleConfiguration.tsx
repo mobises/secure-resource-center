@@ -28,7 +28,7 @@ const VehicleConfiguration: React.FC<VehicleConfigurationProps> = ({ isAdmin }) 
     if (!editingVehicle) return;
 
     const updatedVehicles = vehicles.map(vehicle =>
-      vehicle.id === editingVehicle ? { ...vehicle, ...editData } : vehicle
+      vehicle.id === editingVehicle ? { ...vehicle, ...editData } as Vehicle : vehicle
     );
 
     updateVehicles(updatedVehicles);
