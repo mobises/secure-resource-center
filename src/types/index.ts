@@ -36,7 +36,7 @@ export interface Room {
   capacity: number;
   location: string;
   equipment: string[];
-  status: 'available' | 'occupied' | 'maintenance';
+  status: 'available' | 'occupied' | 'maintenance' | 'unavailable';
   amenities?: string[];
   available?: boolean;
 }
@@ -73,6 +73,7 @@ export interface RoomConfig {
   maxCapacity: number;
   location: string;
   active: boolean;
+  status?: 'available' | 'unavailable';
   resources?: RoomResource[];
 }
 
@@ -83,12 +84,20 @@ export interface RoomResource {
   type: 'furniture' | 'equipment' | 'technology';
 }
 
+export interface RoomScheduleConfig {
+  month: number;
+  dayOfWeek: number; // 0 = Lunes, 6 = Domingo
+  startTime: string;
+  endTime: string;
+  enabled: boolean;
+}
+
 export interface Vehicle {
   id: string;
   name?: string;
   type: string;
   capacity?: number;
-  status: 'available' | 'in_use' | 'maintenance';
+  status: 'available' | 'in_use' | 'maintenance' | 'unavailable';
   brand?: string;
   model?: string;
   licensePlate?: string;
@@ -172,6 +181,7 @@ export interface SecurityReport {
   createdBy?: string;
   responses?: { [key: string]: number };
   createdAt?: string;
+  sections?: SecurityReportSection[];
 }
 
 export interface DeviceType {

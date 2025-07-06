@@ -5,11 +5,13 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, Upload, Trash2, Database, Play } from "lucide-react";
+import { Download, Upload, Trash2, Database, Play, LogIn } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { dataService } from "@/services/dataService";
+import { useAuth } from "@/hooks/useAuth";
 
 const DataManager = () => {
+  const { login } = useAuth();
   const [importData, setImportData] = useState('');
   const [showSimulator, setShowSimulator] = useState(false);
   const [simulatorCredentials, setSimulatorCredentials] = useState({
@@ -73,7 +75,7 @@ const DataManager = () => {
     }
   };
 
-  const handleSimulateLogin = () => {
+  const handleSimulateLogin = async () => {
     if (!simulatorCredentials.userId || !simulatorCredentials.password) {
       toast({
         title: "Error",
@@ -83,21 +85,31 @@ const DataManager = () => {
       return;
     }
 
-    const users = dataService.getUsers();
-    const sectionUsers = dataService.getSectionUsers();
-    
-    const mainUser = users.find(u => u.userId === simulatorCredentials.userId && u.password === simulatorCredentials.password);
-    const sectionUser = sectionUsers.find(u => u.userId === simulatorCredentials.userId && u.password === simulatorCredentials.password);
-    
-    if (mainUser || sectionUser) {
+    try {
+      // Intentar hacer login real con las credenciales
+      const success = await login(simulatorCredentials.userId, simulatorCredentials.password);
+      
+      if (success) {
+        toast({
+          title: "Login Exitoso",
+          description: "Sesión iniciada correctamente. Redirigiendo...",
+        });
+        
+        // Recargar la página para mostrar la interfaz autenticada
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        toast({
+          title: "Login Fallido",
+          description: "Credenciales incorrectas. Verifica los datos importados.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Simulación Exitosa",
-        description: `Login correcto para ${mainUser ? mainUser.name : sectionUser?.name}. Los datos locales están funcionando correctamente.`
-      });
-    } else {
-      toast({
-        title: "Simulación Fallida",
-        description: "Credenciales incorrectas. Verifica los datos importados.",
+        title: "Error",
+        description: "Error al intentar hacer login",
         variant: "destructive"
       });
     }
@@ -145,9 +157,9 @@ const DataManager = () => {
 
       {showSimulator && (
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Simulador de Login</h3>
+          <h3 className="text-lg font-semibold mb-4">Iniciar Sesión con Datos Importados</h3>
           <p className="text-gray-600 mb-4">
-            Prueba el funcionamiento del login con los datos importados.
+            Inicia sesión en la aplicación usando las credenciales de los datos importados.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
@@ -177,8 +189,8 @@ const DataManager = () => {
             </div>
           </div>
           <Button onClick={handleSimulateLogin} className="w-full">
-            <Play className="h-4 w-4 mr-2" />
-            Simular Login
+            <LogIn className="h-4 w-4 mr-2" />
+            Iniciar Sesión
           </Button>
         </Card>
       )}

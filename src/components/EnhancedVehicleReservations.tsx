@@ -2,22 +2,22 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Settings, BarChart3, Users, Clock } from "lucide-react";
-import RoomCalendarView from './RoomCalendarView';
-import RoomConfiguration from './RoomConfiguration';
-import RoomOccupancy from './RoomOccupancy';
-import RoomScheduleConfiguration from './RoomScheduleConfiguration';
+import { Car, Settings, BarChart3, Calendar, Clock } from "lucide-react";
+import VehicleCalendarView from './VehicleCalendarView';
+import VehicleConfiguration from './VehicleConfiguration';
+import VehicleOccupancy from './VehicleOccupancy';
+import VehicleScheduleConfiguration from './VehicleScheduleConfiguration';
 import { useAuth } from '@/hooks/useAuth';
 
-const EnhancedRoomReservations = () => {
+const EnhancedVehicleReservations = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <Calendar className="h-6 w-6" />
-        <h2 className="text-2xl font-bold">Reserva de Salas</h2>
+        <Car className="h-6 w-6" />
+        <h2 className="text-2xl font-bold">Reserva de Vehículos</h2>
       </div>
 
       <Tabs defaultValue="calendar" className="space-y-4">
@@ -30,7 +30,7 @@ const EnhancedRoomReservations = () => {
             <>
               <TabsTrigger value="occupancy" className="flex items-center gap-2">
                 <BarChart3 className="h-4 w-4" />
-                Ocupación de Salas
+                Ocupación
               </TabsTrigger>
               <TabsTrigger value="schedule" className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
@@ -38,28 +38,28 @@ const EnhancedRoomReservations = () => {
               </TabsTrigger>
               <TabsTrigger value="configuration" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
-                Configuración Salas
+                Configuración Vehículos
               </TabsTrigger>
             </>
           )}
         </TabsList>
 
         <TabsContent value="calendar">
-          <RoomCalendarView />
+          <VehicleCalendarView />
         </TabsContent>
 
         {isAdmin && (
           <>
             <TabsContent value="occupancy">
-              <RoomOccupancy />
+              <VehicleOccupancy />
             </TabsContent>
             
             <TabsContent value="schedule">
-              <RoomScheduleConfiguration />
+              <VehicleScheduleConfiguration />
             </TabsContent>
             
             <TabsContent value="configuration">
-              <RoomConfiguration isAdmin={isAdmin} />
+              <VehicleConfiguration isAdmin={isAdmin} />
             </TabsContent>
           </>
         )}
@@ -68,4 +68,4 @@ const EnhancedRoomReservations = () => {
   );
 };
 
-export default EnhancedRoomReservations;
+export default EnhancedVehicleReservations;
