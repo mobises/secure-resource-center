@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Settings, BarChart3, Users, Clock } from "lucide-react";
+import { Calendar, Settings, BarChart3, Users, Clock, Plus } from "lucide-react";
 import RoomCalendarView from './RoomCalendarView';
 import RoomConfiguration from './RoomConfiguration';
 import RoomOccupancy from './RoomOccupancy';
 import RoomScheduleConfiguration from './RoomScheduleConfiguration';
+import EnhancedRoomBooking from './EnhancedRoomBooking';
 import { useAuth } from '@/hooks/useAuth';
 
 const EnhancedRoomReservations = () => {
@@ -20,8 +21,12 @@ const EnhancedRoomReservations = () => {
         <h2 className="text-2xl font-bold">Reserva de Salas</h2>
       </div>
 
-      <Tabs defaultValue="calendar" className="space-y-4">
+      <Tabs defaultValue="booking" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="booking" className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Nueva Reserva
+          </TabsTrigger>
           <TabsTrigger value="calendar" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             Calendario
@@ -43,6 +48,10 @@ const EnhancedRoomReservations = () => {
             </>
           )}
         </TabsList>
+
+        <TabsContent value="booking">
+          <EnhancedRoomBooking />
+        </TabsContent>
 
         <TabsContent value="calendar">
           <RoomCalendarView />

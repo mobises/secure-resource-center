@@ -20,6 +20,11 @@ const EnhancedVehicleConfig = () => {
     type: '',
     capacity: 5,
     maxReservationDays: 7,
+    currentKilometers: 0,
+    maxKmPerTank: 500,
+    fuelType: 'gasoline' as 'electric' | 'gasoline' | 'diesel' | 'hybrid' | 'pluginHybrid',
+    batteryPercentage: 100,
+    fuelPercentage: 100,
     status: 'available' as const
   });
 
@@ -46,6 +51,11 @@ const EnhancedVehicleConfig = () => {
       type: newVehicle.type,
       capacity: newVehicle.capacity,
       maxReservationDays: newVehicle.maxReservationDays,
+      currentKilometers: newVehicle.currentKilometers,
+      maxKmPerTank: newVehicle.maxKmPerTank,
+      fuelType: newVehicle.fuelType,
+      batteryPercentage: newVehicle.fuelType === 'electric' ? newVehicle.batteryPercentage : undefined,
+      fuelPercentage: newVehicle.fuelType !== 'electric' ? newVehicle.fuelPercentage : undefined,
       status: 'available' as const
     };
 
@@ -60,6 +70,11 @@ const EnhancedVehicleConfig = () => {
       type: '',
       capacity: 5,
       maxReservationDays: 7,
+      currentKilometers: 0,
+      maxKmPerTank: 500,
+      fuelType: 'gasoline',
+      batteryPercentage: 100,
+      fuelPercentage: 100,
       status: 'available'
     });
 
@@ -95,6 +110,11 @@ const EnhancedVehicleConfig = () => {
       type: editingVehicle.type,
       capacity: editingVehicle.capacity || 5,
       maxReservationDays: editingVehicle.maxReservationDays,
+      currentKilometers: editingVehicle.currentKilometers || 0,
+      maxKmPerTank: editingVehicle.maxKmPerTank || 500,
+      fuelType: editingVehicle.fuelType || 'gasoline',
+      batteryPercentage: editingVehicle.fuelType === 'electric' ? editingVehicle.batteryPercentage : undefined,
+      fuelPercentage: editingVehicle.fuelType !== 'electric' ? editingVehicle.fuelPercentage : undefined,
       status: editingVehicle.status
     };
 
@@ -205,6 +225,71 @@ const EnhancedVehicleConfig = () => {
               placeholder="7"
             />
           </div>
+          <div>
+            <Label htmlFor="currentKilometers">Kilómetros actuales</Label>
+            <Input
+              id="currentKilometers"
+              type="number"
+              value={newVehicle.currentKilometers}
+              onChange={(e) => setNewVehicle({...newVehicle, currentKilometers: parseInt(e.target.value)})}
+              min="0"
+              placeholder="0"
+            />
+          </div>
+          <div>
+            <Label htmlFor="maxKmPerTank">Máximo km por tanque</Label>
+            <Input
+              id="maxKmPerTank"
+              type="number"
+              value={newVehicle.maxKmPerTank}
+              onChange={(e) => setNewVehicle({...newVehicle, maxKmPerTank: parseInt(e.target.value)})}
+              min="1"
+              placeholder="500"
+            />
+          </div>
+          <div>
+            <Label htmlFor="fuelType">Tipo de combustible</Label>
+            <select
+              id="fuelType"
+              value={newVehicle.fuelType}
+              onChange={(e) => setNewVehicle({...newVehicle, fuelType: e.target.value as any})}
+              className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md"
+            >
+              <option value="gasoline">Gasolina</option>
+              <option value="diesel">Diésel</option>
+              <option value="electric">Eléctrico</option>
+              <option value="hybrid">Híbrido</option>
+              <option value="pluginHybrid">Híbrido Enchufable</option>
+            </select>
+          </div>
+          {newVehicle.fuelType === 'electric' && (
+            <div>
+              <Label htmlFor="batteryPercentage">Porcentaje de batería</Label>
+              <Input
+                id="batteryPercentage"
+                type="number"
+                value={newVehicle.batteryPercentage}
+                onChange={(e) => setNewVehicle({...newVehicle, batteryPercentage: parseInt(e.target.value)})}
+                min="0"
+                max="100"
+                placeholder="100"
+              />
+            </div>
+          )}
+          {newVehicle.fuelType !== 'electric' && (
+            <div>
+              <Label htmlFor="fuelPercentage">Porcentaje de combustible</Label>
+              <Input
+                id="fuelPercentage"
+                type="number"
+                value={newVehicle.fuelPercentage}
+                onChange={(e) => setNewVehicle({...newVehicle, fuelPercentage: parseInt(e.target.value)})}
+                min="0"
+                max="100"
+                placeholder="100"
+              />
+            </div>
+          )}
         </div>
         <Button onClick={handleAddVehicle} className="mt-4">
           <Plus className="h-4 w-4 mr-2" />
@@ -281,6 +366,38 @@ const EnhancedVehicleConfig = () => {
                       max="365"
                     />
                   </div>
+                  <div>
+                    <Label>Kilómetros actuales</Label>
+                    <Input
+                      type="number"
+                      value={editingVehicle.currentKilometers || 0}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, currentKilometers: parseInt(e.target.value)})}
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <Label>Máximo km por tanque</Label>
+                    <Input
+                      type="number"
+                      value={editingVehicle.maxKmPerTank || 500}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, maxKmPerTank: parseInt(e.target.value)})}
+                      min="1"
+                    />
+                  </div>
+                  <div>
+                    <Label>Tipo de combustible</Label>
+                    <select
+                      value={editingVehicle.fuelType || 'gasoline'}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, fuelType: e.target.value as any})}
+                      className="w-full h-10 px-3 py-2 border border-input bg-background rounded-md"
+                    >
+                      <option value="gasoline">Gasolina</option>
+                      <option value="diesel">Diésel</option>
+                      <option value="electric">Eléctrico</option>
+                      <option value="hybrid">Híbrido</option>
+                      <option value="pluginHybrid">Híbrido Enchufable</option>
+                    </select>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={handleSaveEdit}>Guardar</Button>
@@ -289,7 +406,7 @@ const EnhancedVehicleConfig = () => {
               </div>
             ) : (
               <div className="flex justify-between items-center">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 flex-1">
                   <div>
                     <p className="font-semibold">{vehicle.name || `${vehicle.brand || ''} ${vehicle.model || ''}`}</p>
                     <p className="text-sm text-gray-600">{vehicle.year}</p>
@@ -299,8 +416,16 @@ const EnhancedVehicleConfig = () => {
                     <p className="text-sm text-gray-600">{vehicle.type}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600">Capacidad: {vehicle.capacity || 'No especificada'}</p>
-                    <p className="text-sm text-gray-600">Máx. días: {vehicle.maxReservationDays || 7}</p>
+                    <p className="text-sm text-gray-600">Km actuales: {vehicle.currentKilometers || 0}</p>
+                    <p className="text-sm text-gray-600">Máx. km/tanque: {vehicle.maxKmPerTank || 500}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600">Combustible: {vehicle.fuelType || 'gasoline'}</p>
+                    {vehicle.fuelType === 'electric' ? (
+                      <p className="text-sm text-gray-600">Batería: {vehicle.batteryPercentage || 100}%</p>
+                    ) : (
+                      <p className="text-sm text-gray-600">Combustible: {vehicle.fuelPercentage || 100}%</p>
+                    )}
                   </div>
                   <div>
                     <span className={`px-2 py-1 rounded-full text-xs ${

@@ -7,7 +7,8 @@ import {
   Car,
   TrendingUp,
   CheckCircle,
-  Clock
+  Clock,
+  Bell
 } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import { useSectionUsers, useRoomReservations, useVehicles, useVehicleReservations } from '@/hooks/useLocalData';
@@ -51,6 +52,7 @@ const Dashboard = () => {
   ).length;
 
   const availableVehicles = vehicles.filter(v => v.status === 'available').length - todayVehicleReservations;
+  const unreadNotifications = getUnreadCount();
 
   const connectedUsers = 1; // Usuario actual conectado - en implementación real sería dinámico
 
@@ -96,6 +98,14 @@ const Dashboard = () => {
     },
     {
       id: 2,
+      type: "notifications",
+      description: `${unreadNotifications} notificaciones pendientes`,
+      time: "Ahora",
+      icon: Bell,
+      color: unreadNotifications > 0 ? "text-red-600" : "text-green-600"
+    },
+    {
+      id: 3,
       type: "system",
       description: "Sistema iniciado correctamente",
       time: "Hace 5 minutos",
@@ -108,8 +118,16 @@ const Dashboard = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Panel de Administración</h1>
-        <div className="text-sm text-gray-500">
-          Última actualización: {new Date().toLocaleString('es-ES')}
+        <div className="flex items-center gap-4">
+          {unreadNotifications > 0 && (
+            <div className="flex items-center gap-2 px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm">
+              <Bell className="h-4 w-4" />
+              <span>{unreadNotifications} mensajes pendientes</span>
+            </div>
+          )}
+          <div className="text-sm text-gray-500">
+            Última actualización: {new Date().toLocaleString('es-ES')}
+          </div>
         </div>
       </div>
 

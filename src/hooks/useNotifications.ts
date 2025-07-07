@@ -33,9 +33,36 @@ export const useNotifications = () => {
     saveNotifications([...notifications, newNotification]);
   };
 
+  // Auto-add notifications for new room reservations
+  const addRoomReservationNotification = (reservationId: string, roomName: string, userName: string) => {
+    addNotification({
+      type: 'room_reservation',
+      title: 'Nueva reserva de sala',
+      message: `${userName} ha reservado la sala "${roomName}"`,
+      relatedId: reservationId
+    });
+  };
+
+  // Auto-add notifications for new vehicle reservations
+  const addVehicleReservationNotification = (reservationId: string, vehicleName: string, userName: string) => {
+    addNotification({
+      type: 'vehicle_reservation',
+      title: 'Nueva reserva de vehículo',
+      message: `${userName} ha reservado el vehículo "${vehicleName}"`,
+      relatedId: reservationId
+    });
+  };
+
   const markAsRead = (notificationId: string) => {
     const updatedNotifications = notifications.map(n => 
       n.id === notificationId ? { ...n, isRead: true } : n
+    );
+    saveNotifications(updatedNotifications);
+  };
+
+  const markAsReadByRelatedId = (relatedId: string) => {
+    const updatedNotifications = notifications.map(n => 
+      n.relatedId === relatedId ? { ...n, isRead: true } : n
     );
     saveNotifications(updatedNotifications);
   };
@@ -52,7 +79,10 @@ export const useNotifications = () => {
   return {
     notifications,
     addNotification,
+    addRoomReservationNotification,
+    addVehicleReservationNotification,
     markAsRead,
+    markAsReadByRelatedId,
     markAllAsRead,
     getUnreadCount
   };

@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Car, Calendar, Settings } from "lucide-react";
+import { Car, Calendar, Settings, BarChart3 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EnhancedVehicleBookingControl from './EnhancedVehicleBookingControl';
 import EnhancedVehicleConfig from './EnhancedVehicleConfig';
+import VehicleKmReport from './VehicleKmReport';
 import { useSectionUsers } from "@/hooks/useLocalData";
 import { useAuth } from '@/hooks/useAuth';
 import { SectionUser } from "@/types";
@@ -63,10 +64,16 @@ const VehicleModule = () => {
             Reservas
           </TabsTrigger>
           {adminAccess && (
-            <TabsTrigger value="config" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Configuración
-            </TabsTrigger>
+            <>
+              <TabsTrigger value="kmReport" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Reporte Km
+              </TabsTrigger>
+              <TabsTrigger value="config" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Configuración
+              </TabsTrigger>
+            </>
           )}
         </TabsList>
 
@@ -78,9 +85,15 @@ const VehicleModule = () => {
         </TabsContent>
 
         {adminAccess && (
-          <TabsContent value="config">
-            <EnhancedVehicleConfig />
-          </TabsContent>
+          <>
+            <TabsContent value="kmReport">
+              <VehicleKmReport />
+            </TabsContent>
+            
+            <TabsContent value="config">
+              <EnhancedVehicleConfig />
+            </TabsContent>
+          </>
         )}
       </Tabs>
     </div>

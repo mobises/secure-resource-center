@@ -1,58 +1,89 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card } from "@/components/ui/card";
-import { Users, Plus, Edit, Trash2, Lock, Unlock } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Trash2, Edit, Users, Plus, Eye, EyeOff } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { SectionUser } from "@/types";
+import { useSectionUsers } from "@/hooks/useLocalData";
 
-interface SectionUserManagementProps {
-  users: SectionUser[];
-  onUpdateUsers: (users: SectionUser[]) => void;
-}
-
-const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, onUpdateUsers }) => {
+const SectionUserManagement = () => {
+  const { data: sectionUsers, updateData: updateSectionUsers } = useSectionUsers();
+  
   const [newUser, setNewUser] = useState({
     name: '',
     userId: '',
     password: '',
-    stockRole: null as 'admin' | 'user' | null,
-    stockAccess: false,
-    maintenanceRole: null as 'admin' | 'user' | null,
-    maintenanceAccess: false,
-    roomsRole: 'user' as 'admin' | 'user' | null,
-    roomsAccess: true,
-    securityRole: null as 'admin' | 'user' | null,
-    securityAccess: false,
-    vehiclesRole: 'user' as 'admin' | 'user' | null,
-    vehiclesAccess: true,
-    dashboardAccess: true
+    dashboardAccess: true,
+    sectionRoles: {
+      stock: null as 'admin' | 'user' | null,
+      maintenance: null as 'admin' | 'user' | null,
+      rooms: 'user' as 'admin' | 'user' | null,
+      security: null as 'admin' | 'user' | null,
+      vehicles: 'user' as 'admin' | 'user' | null
+    },
+    sectionAccess: {
+      stock: false,
+      maintenance: false,
+      rooms: true,
+      security: false,
+      vehicles: true
+    }
   });
 
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editingUser, setEditingUser] = useState<SectionUser | null>(null);
+  const [showPasswords, setShowPasswords] = useState<{[key: string]: boolean}>({});
 
-  const handleAddUser = () => {
-    if (!newUser.name || !newUser.userId || !newUser.password) {
+  const validateUser = (user: any) => {
+    if (!user.name.trim()) {
       toast({
         title: "Error",
-        description: "Por favor, completa nombre, ID de usuario y contraseña",
+        description: "El nombre es obligatorio",
         variant: "destructive"
       });
-      return;
+      return false;
     }
 
-    // Verificar si el ID de usuario ya existe
-    const existingUser = users.find(u => u.userId === newUser.userId);
+    if (!user.userId.trim()) {
+      toast({
+        title: "Error",
+        description: "El ID de usuario es obligatorio",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    if (!user.password.trim()) {
+      toast({
+        title: "Error",
+        description: "La contraseña es obligatoria",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    // Verificar duplicados de userId (excluyendo el usuario que se está editando)
+    const existingUser = sectionUsers.find(u => 
+      u.userId === user.userId && u.id !== editingId
+    );
+    
     if (existingUser) {
       toast({
         title: "Error",
-        description: "ID de usuario ya existe. Por favor, elige otro ID.",
+        description: "Ya existe un usuario con este ID",
         variant: "destructive"
       });
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const handleAddUser = () => {
+    if (!validateUser(newUser)) return;
 
     const user: SectionUser = {
       id: Date.now().toString(),
@@ -61,38 +92,30 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
       password: newUser.password,
       dashboardAccess: newUser.dashboardAccess,
       lastPasswordChange: new Date().toISOString(),
-      sectionRoles: {
-        stock: newUser.stockRole,
-        maintenance: newUser.maintenanceRole,
-        rooms: newUser.roomsRole,
-        security: newUser.securityRole,
-        vehicles: newUser.vehiclesRole
-      },
-      sectionAccess: {
-        stock: newUser.stockAccess,
-        maintenance: newUser.maintenanceAccess,
-        rooms: newUser.roomsAccess,
-        security: newUser.securityAccess,
-        vehicles: newUser.vehiclesAccess
-      }
+      sectionRoles: { ...newUser.sectionRoles },
+      sectionAccess: { ...newUser.sectionAccess }
     };
 
-    onUpdateUsers([...users, user]);
+    updateSectionUsers([...sectionUsers, user]);
     setNewUser({
       name: '',
       userId: '',
       password: '',
-      stockRole: null,
-      stockAccess: false,
-      maintenanceRole: null,
-      maintenanceAccess: false,
-      roomsRole: 'user',
-      roomsAccess: true,
-      securityRole: null,
-      securityAccess: false,
-      vehiclesRole: 'user',
-      vehiclesAccess: true,
-      dashboardAccess: true
+      dashboardAccess: true,
+      sectionRoles: {
+        stock: null,
+        maintenance: null,
+        rooms: 'user',
+        security: null,
+        vehicles: 'user'
+      },
+      sectionAccess: {
+        stock: false,
+        maintenance: false,
+        rooms: true,
+        security: false,
+        vehicles: true
+      }
     });
 
     toast({
@@ -101,133 +124,63 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
     });
   };
 
-  const handleDeleteUser = (userId: string) => {
-    onUpdateUsers(users.filter(u => u.id !== userId));
+  const handleDeleteUser = (id: string) => {
+    updateSectionUsers(sectionUsers.filter(u => u.id !== id));
     toast({
       title: "Éxito",
       description: "Usuario eliminado correctamente"
     });
   };
 
-  const handleBlockUser = (userId: string) => {
-    const blockUntil = new Date();
-    blockUntil.setHours(blockUntil.getHours() + 1); // Bloquear por 1 hora
-    
-    const updatedUsers = users.map(user => 
-      user.id === userId 
-        ? { ...user, blockedUntil: blockUntil.toISOString() }
-        : user
+  const handleEditUser = (user: SectionUser) => {
+    setEditingId(user.id);
+    setEditingUser({ ...user });
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingUser || !validateUser(editingUser)) return;
+
+    const updatedUsers = sectionUsers.map(u => 
+      u.id === editingId ? editingUser : u
     );
-    onUpdateUsers(updatedUsers);
-    
+    updateSectionUsers(updatedUsers);
+    setEditingId(null);
+    setEditingUser(null);
     toast({
       title: "Éxito",
-      description: "Usuario bloqueado temporalmente"
+      description: "Usuario actualizado correctamente"
     });
   };
 
-  const handleUnblockUser = (userId: string) => {
-    const updatedUsers = users.map(user => 
-      user.id === userId 
-        ? { ...user, blockedUntil: undefined, failedLoginAttempts: 0 }
-        : user
-    );
-    onUpdateUsers(updatedUsers);
-    
-    toast({
-      title: "Éxito",
-      description: "Usuario desbloqueado correctamente"
-    });
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingUser(null);
   };
 
-  const handleChangePassword = (userId: string, newPassword: string) => {
-    if (!newPassword) {
-      toast({
-        title: "Error",
-        description: "La contraseña no puede estar vacía",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    const updatedUsers = users.map(user => 
-      user.id === userId 
-        ? { 
-            ...user, 
-            password: newPassword,
-            lastPasswordChange: new Date().toISOString(),
-            passwordHistory: [...(user.passwordHistory || []), user.password].slice(-5) // Mantener últimas 5 contraseñas
-          }
-        : user
-    );
-    onUpdateUsers(updatedUsers);
-    
-    toast({
-      title: "Éxito",
-      description: "Contraseña cambiada correctamente"
-    });
+  const togglePasswordVisibility = (userId: string) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [userId]: !prev[userId]
+    }));
   };
-
-  const updateUserRole = (userId: string, section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles', role: 'admin' | 'user' | null) => {
-    const updatedUsers = users.map(user => 
-      user.id === userId 
-        ? {
-            ...user, 
-            sectionRoles: { ...user.sectionRoles, [section]: role }
-          }
-        : user
-    );
-    onUpdateUsers(updatedUsers);
-  };
-
-  const updateUserAccess = (userId: string, section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles', access: boolean) => {
-    const updatedUsers = users.map(user => 
-      user.id === userId 
-        ? {
-            ...user, 
-            sectionAccess: { ...user.sectionAccess, [section]: access }
-          }
-        : user
-    );
-    onUpdateUsers(updatedUsers);
-  };
-
-  const isUserBlocked = (user: SectionUser) => {
-    return user.blockedUntil && new Date(user.blockedUntil) > new Date();
-  };
-
-  const getDaysUntilPasswordExpiration = (lastPasswordChange?: string) => {
-    if (!lastPasswordChange) return -1;
-    const lastChange = new Date(lastPasswordChange);
-    const now = new Date();
-    const diffTime = now.getTime() - lastChange.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return 90 - diffDays;
-  };
-
-  const sections = [
-    { key: 'stock' as const, name: 'Control de Stock' },
-    { key: 'maintenance' as const, name: 'Mantenimiento' },
-    { key: 'rooms' as const, name: 'Reserva de Salas' },
-    { key: 'security' as const, name: 'Seguridad' },
-    { key: 'vehicles' as const, name: 'Reserva de Vehículos' }
-  ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <Users className="h-5 w-5" />
-        <h3 className="text-lg font-semibold">Gestión de Usuarios por Sección</h3>
+        <Users className="h-6 w-6" />
+        <h2 className="text-2xl font-bold">Gestión de Usuarios por Sección</h2>
       </div>
 
-      <Card className="p-6">
-        <h4 className="text-md font-semibold mb-4">Agregar Nuevo Usuario</h4>
-        <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Agregar Nuevo Usuario</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="userName">Nombre</Label>
+              <Label htmlFor="name">Nombre</Label>
               <Input
-                id="userName"
+                id="name"
                 value={newUser.name}
                 onChange={(e) => setNewUser({...newUser, name: e.target.value})}
                 placeholder="Nombre completo"
@@ -239,7 +192,7 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
                 id="userId"
                 value={newUser.userId}
                 onChange={(e) => setNewUser({...newUser, userId: e.target.value})}
-                placeholder="ID único del usuario"
+                placeholder="usuario.ejemplo"
               />
             </div>
             <div>
@@ -254,144 +207,265 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
             </div>
           </div>
 
-          <div className="mb-4">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Switch
                 id="dashboardAccess"
                 checked={newUser.dashboardAccess}
-                onChange={(e) => setNewUser({...newUser, dashboardAccess: e.target.checked})}
+                onCheckedChange={(checked) => setNewUser({...newUser, dashboardAccess: checked})}
               />
               <Label htmlFor="dashboardAccess">Acceso al Dashboard</Label>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sections.map((section) => (
-              <div key={section.key} className="space-y-3">
-                <h5 className="font-medium text-sm">{section.name}</h5>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id={`${section.key}Access`}
-                    checked={newUser[`${section.key}Access` as keyof typeof newUser] as boolean}
-                    onChange={(e) => setNewUser({...newUser, [`${section.key}Access`]: e.target.checked})}
-                  />
-                  <Label htmlFor={`${section.key}Access`} className="text-sm">Acceso</Label>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              {Object.entries(newUser.sectionAccess).map(([section, hasAccess]) => (
+                <div key={section} className="space-y-2">
+                  <Label className="text-sm font-medium capitalize">{section}</Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={hasAccess}
+                        onCheckedChange={(checked) => {
+                          setNewUser({
+                            ...newUser,
+                            sectionAccess: {
+                              ...newUser.sectionAccess,
+                              [section]: checked
+                            },
+                            sectionRoles: {
+                              ...newUser.sectionRoles,
+                              [section]: checked ? 'user' : null
+                            }
+                          });
+                        }}
+                      />
+                      <Label className="text-xs">Acceso</Label>
+                    </div>
+                    {hasAccess && (
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id={`${section}-user`}
+                            name={`${section}-role`}
+                            checked={newUser.sectionRoles[section as keyof typeof newUser.sectionRoles] === 'user'}
+                            onChange={() => setNewUser({
+                              ...newUser,
+                              sectionRoles: {
+                                ...newUser.sectionRoles,
+                                [section]: 'user'
+                              }
+                            })}
+                          />
+                          <Label htmlFor={`${section}-user`} className="text-xs">Usuario</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="radio"
+                            id={`${section}-admin`}
+                            name={`${section}-role`}
+                            checked={newUser.sectionRoles[section as keyof typeof newUser.sectionRoles] === 'admin'}
+                            onChange={() => setNewUser({
+                              ...newUser,
+                              sectionRoles: {
+                                ...newUser.sectionRoles,
+                                [section]: 'admin'
+                              }
+                            })}
+                          />
+                          <Label htmlFor={`${section}-admin`} className="text-xs">Admin</Label>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                {newUser[`${section.key}Access` as keyof typeof newUser] && (
-                  <select
-                    value={newUser[`${section.key}Role` as keyof typeof newUser] as string || ''}
-                    onChange={(e) => setNewUser({...newUser, [`${section.key}Role`]: e.target.value as 'admin' | 'user' || null})}
-                    className="w-full h-8 px-2 py-1 border border-input bg-background rounded-md text-sm"
-                  >
-                    <option value="">Seleccionar rol</option>
-                    <option value="user">Usuario</option>
-                    <option value="admin">Administrador</option>
-                  </select>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           <Button onClick={handleAddUser}>
             <Plus className="h-4 w-4 mr-2" />
             Agregar Usuario
           </Button>
-        </div>
+        </CardContent>
       </Card>
 
-      <Card className="p-6">
-        <h4 className="text-md font-semibold mb-4">Usuarios Existentes</h4>
-        <div className="space-y-3">
-          {users.map((user) => (
-            <div key={user.id} className="border p-4 rounded-lg">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium">{user.name}</p>
-                    {isUserBlocked(user) && (
-                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded">
-                        BLOQUEADO
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600">ID: {user.userId}</p>
-                  <div className="text-xs text-gray-500 mt-1">
-                    <p>Última modificación de clave: {user.lastPasswordChange ? new Date(user.lastPasswordChange).toLocaleDateString('es-ES') : 'Nunca'}</p>
-                    {user.lastPasswordChange && (
-                      <p>Días hasta expiración: {getDaysUntilPasswordExpiration(user.lastPasswordChange)}</p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const newPassword = prompt("Nueva contraseña:");
-                      if (newPassword) handleChangePassword(user.id, newPassword);
-                    }}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  {isUserBlocked(user) ? (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleUnblockUser(user.id)}
-                    >
-                      <Unlock className="h-4 w-4" />
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleBlockUser(user.id)}
-                    >
-                      <Lock className="h-4 w-4" />
-                    </Button>
-                  )}
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteUser(user.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {sections.map((section) => (
-                  <div key={section.key} className="space-y-2">
-                    <h6 className="text-sm font-medium">{section.name}</h6>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={user.sectionAccess[section.key]}
-                        onChange={(e) => updateUserAccess(user.id, section.key, e.target.checked)}
+      <div className="space-y-4">
+        {sectionUsers.map((user) => (
+          <Card key={user.id}>
+            <CardContent className="p-4">
+              {editingId === user.id && editingUser ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label>Nombre</Label>
+                      <Input
+                        value={editingUser.name}
+                        onChange={(e) => setEditingUser({...editingUser, name: e.target.value})}
                       />
-                      <span className="text-sm">Acceso</span>
                     </div>
-                    {user.sectionAccess[section.key] && (
-                      <select
-                        value={user.sectionRoles[section.key] || ''}
-                        onChange={(e) => updateUserRole(user.id, section.key, e.target.value as 'admin' | 'user' || null)}
-                        className="w-full h-8 px-2 py-1 border border-input bg-background rounded-md text-sm"
-                      >
-                        <option value="">Sin rol</option>
-                        <option value="user">Usuario</option>
-                        <option value="admin">Administrador</option>
-                      </select>
-                    )}
+                    <div>
+                      <Label>ID de Usuario</Label>
+                      <Input
+                        value={editingUser.userId}
+                        onChange={(e) => setEditingUser({...editingUser, userId: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label>Contraseña</Label>
+                      <Input
+                        type="password"
+                        value={editingUser.password}
+                        onChange={(e) => setEditingUser({...editingUser, password: e.target.value})}
+                      />
+                    </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={editingUser.dashboardAccess}
+                        onCheckedChange={(checked) => setEditingUser({...editingUser, dashboardAccess: checked})}
+                      />
+                      <Label>Acceso al Dashboard</Label>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                      {Object.entries(editingUser.sectionAccess).map(([section, hasAccess]) => (
+                        <div key={section} className="space-y-2">
+                          <Label className="text-sm font-medium capitalize">{section}</Label>
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <Switch
+                                checked={hasAccess}
+                                onCheckedChange={(checked) => {
+                                  setEditingUser({
+                                    ...editingUser,
+                                    sectionAccess: {
+                                      ...editingUser.sectionAccess,
+                                      [section]: checked
+                                    },
+                                    sectionRoles: {
+                                      ...editingUser.sectionRoles,
+                                      [section]: checked ? 'user' : null
+                                    }
+                                  });
+                                }}
+                              />
+                              <Label className="text-xs">Acceso</Label>
+                            </div>
+                            {hasAccess && (
+                              <div className="space-y-1">
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="radio"
+                                    checked={editingUser.sectionRoles[section as keyof typeof editingUser.sectionRoles] === 'user'}
+                                    onChange={() => setEditingUser({
+                                      ...editingUser,
+                                      sectionRoles: {
+                                        ...editingUser.sectionRoles,
+                                        [section]: 'user'
+                                      }
+                                    })}
+                                  />
+                                  <Label className="text-xs">Usuario</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="radio"
+                                    checked={editingUser.sectionRoles[section as keyof typeof editingUser.sectionRoles] === 'admin'}
+                                    onChange={() => setEditingUser({
+                                      ...editingUser,
+                                      sectionRoles: {
+                                        ...editingUser.sectionRoles,
+                                        [section]: 'admin'
+                                      }
+                                    })}
+                                  />
+                                  <Label className="text-xs">Admin</Label>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveEdit}>Guardar</Button>
+                    <Button variant="outline" onClick={handleCancelEdit}>Cancelar</Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2">
+                    <div>
+                      <h3 className="font-semibold">{user.name}</h3>
+                      <p className="text-sm text-gray-600">ID: {user.userId}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-gray-600">
+                          Contraseña: {showPasswords[user.id] ? user.password : '••••••••'}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => togglePasswordVisibility(user.id)}
+                        >
+                          {showPasswords[user.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-5 gap-4 text-xs">
+                      {Object.entries(user.sectionAccess).map(([section, hasAccess]) => (
+                        <div key={section}>
+                          <span className="capitalize font-medium">{section}:</span>
+                          <div className="text-gray-600">
+                            {hasAccess ? (
+                              <span className={`px-1 py-0.5 rounded text-xs ${
+                                user.sectionRoles[section as keyof typeof user.sectionRoles] === 'admin' 
+                                  ? 'bg-red-100 text-red-800' 
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}>
+                                {user.sectionRoles[section as keyof typeof user.sectionRoles]}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">Sin acceso</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        user.dashboardAccess ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {user.dashboardAccess ? 'Dashboard: Sí' : 'Dashboard: No'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditUser(user)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteUser(user.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
