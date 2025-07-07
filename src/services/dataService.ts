@@ -51,7 +51,7 @@ const saveToStorage = <T>(key: string, data: T): void => {
   }
 };
 
-// Default data
+// Default data - Datos persistentes mejorados
 const defaultUsers: User[] = [
   {
     id: '1',
@@ -70,6 +70,24 @@ const defaultUsers: User[] = [
     role: 'user',
     permissions: ['read'],
     dashboardAccess: true
+  },
+  {
+    id: '3',
+    name: 'Juan Pérez',
+    userId: 'juan.perez',
+    password: 'juan123',
+    role: 'user',
+    permissions: ['read'],
+    dashboardAccess: true
+  },
+  {
+    id: '4',
+    name: 'María García',
+    userId: 'maria.garcia',
+    password: 'maria123',
+    role: 'user',
+    permissions: ['read'],
+    dashboardAccess: true
   }
 ];
 
@@ -80,6 +98,7 @@ const defaultSectionUsers: SectionUser[] = [
     userId: 'section_admin',
     password: 'admin123',
     dashboardAccess: true,
+    lastPasswordChange: new Date().toISOString(),
     sectionRoles: {
       stock: 'admin',
       maintenance: 'admin',
@@ -92,6 +111,28 @@ const defaultSectionUsers: SectionUser[] = [
       maintenance: true,
       rooms: true,
       security: true,
+      vehicles: true
+    }
+  },
+  {
+    id: '2',
+    name: 'José Martínez',
+    userId: 'jose.martinez',
+    password: 'jose123',
+    dashboardAccess: true,
+    lastPasswordChange: new Date().toISOString(),
+    sectionRoles: {
+      stock: 'user',
+      maintenance: null,
+      rooms: 'user',
+      security: null,
+      vehicles: 'user'
+    },
+    sectionAccess: {
+      stock: true,
+      maintenance: false,
+      rooms: true,
+      security: false,
       vehicles: true
     }
   }
@@ -115,6 +156,46 @@ const defaultRooms: Room[] = [
     equipment: ['TV', 'Sistema de Videoconferencia'],
     status: 'available',
     amenities: ['WiFi', 'Cafetera']
+  },
+  {
+    id: '3',
+    name: 'Sala de Reuniones Pequeña',
+    capacity: 4,
+    location: 'Piso 1',
+    equipment: ['TV', 'Pizarra'],
+    status: 'available',
+    amenities: ['WiFi']
+  }
+];
+
+const defaultRoomReservations: RoomReservation[] = [
+  {
+    id: '1',
+    roomId: '1',
+    roomName: 'Sala de Juntas Principal',
+    userId: '1',
+    userName: 'Admin User',
+    date: new Date().toISOString().split('T')[0],
+    startTime: '10:00',
+    endTime: '12:00',
+    purpose: 'Reunión de planificación mensual',
+    status: 'approved',
+    createdAt: new Date().toISOString(),
+    attendees: 8
+  },
+  {
+    id: '2',
+    roomId: '2',
+    roomName: 'Sala de Conferencias',
+    userId: '2',
+    userName: 'Regular User',
+    date: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Mañana
+    startTime: '14:00',
+    endTime: '16:00',
+    purpose: 'Presentación de resultados',
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    attendees: 6
   }
 ];
 
@@ -136,12 +217,59 @@ const defaultVehicles: Vehicle[] = [
     name: 'Ford Transit 2021',
     type: 'Van',
     capacity: 12,
-    status: 'maintenance',
+    status: 'available',
     brand: 'Ford',
     model: 'Transit',
     licensePlate: 'DEF-456',
     year: 2021,
     maxReservationDays: 14
+  },
+  {
+    id: '3',
+    name: 'Nissan Altima 2023',
+    type: 'Sedan',
+    capacity: 5,
+    status: 'available',
+    brand: 'Nissan',
+    model: 'Altima',
+    licensePlate: 'GHI-789',
+    year: 2023,
+    maxReservationDays: 10
+  }
+];
+
+const defaultVehicleReservations: VehicleReservation[] = [
+  {
+    id: '1',
+    vehicleId: '1',
+    vehicleName: 'Toyota Camry 2022',
+    userId: '1',
+    userName: 'Admin User',
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date(Date.now() + 172800000).toISOString().split('T')[0], // 2 días
+    startTime: '08:00',
+    endTime: '18:00',
+    purpose: 'Visita a cliente',
+    destination: 'Madrid Centro',
+    status: 'approved',
+    createdAt: new Date().toISOString(),
+    licensePlate: 'ABC-123'
+  },
+  {
+    id: '2',
+    vehicleId: '2',
+    vehicleName: 'Ford Transit 2021',
+    userId: '2',
+    userName: 'Regular User',
+    startDate: new Date(Date.now() + 86400000).toISOString().split('T')[0], // Mañana
+    endDate: new Date(Date.now() + 259200000).toISOString().split('T')[0], // 3 días
+    startTime: '09:00',
+    endTime: '17:00',
+    purpose: 'Transporte de equipo',
+    destination: 'Barcelona',
+    status: 'pending',
+    createdAt: new Date().toISOString(),
+    licensePlate: 'DEF-456'
   }
 ];
 
@@ -173,7 +301,7 @@ export const dataService = {
   saveRoomConfigs: (configs: RoomConfig[]): void => saveToStorage(STORAGE_KEYS.ROOM_CONFIGS, configs),
 
   // Room Reservations
-  getRoomReservations: (): RoomReservation[] => getFromStorage(STORAGE_KEYS.ROOM_RESERVATIONS, []),
+  getRoomReservations: (): RoomReservation[] => getFromStorage(STORAGE_KEYS.ROOM_RESERVATIONS, defaultRoomReservations),
   saveRoomReservations: (reservations: RoomReservation[]): void => saveToStorage(STORAGE_KEYS.ROOM_RESERVATIONS, reservations),
 
   // Room Schedule Config
@@ -189,7 +317,7 @@ export const dataService = {
   saveVehicles: (vehicles: Vehicle[]): void => saveToStorage(STORAGE_KEYS.VEHICLES, vehicles),
 
   // Vehicle Reservations
-  getVehicleReservations: (): VehicleReservation[] => getFromStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, []),
+  getVehicleReservations: (): VehicleReservation[] => getFromStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, defaultVehicleReservations),
   saveVehicleReservations: (reservations: VehicleReservation[]): void => saveToStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, reservations),
 
   // Stock Movements
@@ -215,11 +343,11 @@ export const dataService = {
       sectionUsers: getFromStorage(STORAGE_KEYS.SECTION_USERS, defaultSectionUsers),
       rooms: getFromStorage(STORAGE_KEYS.ROOMS, defaultRooms),
       roomConfigs: getFromStorage(STORAGE_KEYS.ROOM_CONFIGS, []),
-      roomReservations: getFromStorage(STORAGE_KEYS.ROOM_RESERVATIONS, []),
+      roomReservations: getFromStorage(STORAGE_KEYS.ROOM_RESERVATIONS, defaultRoomReservations),
       roomScheduleConfig: getFromStorage(STORAGE_KEYS.ROOM_SCHEDULE_CONFIG, []),
       holidays: getFromStorage(STORAGE_KEYS.HOLIDAYS, []),
       vehicles: getFromStorage(STORAGE_KEYS.VEHICLES, defaultVehicles),
-      vehicleReservations: getFromStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, []),
+      vehicleReservations: getFromStorage(STORAGE_KEYS.VEHICLE_RESERVATIONS, defaultVehicleReservations),
       stockMovements: getFromStorage(STORAGE_KEYS.STOCK_MOVEMENTS, []),
       maintenanceEquipment: getFromStorage(STORAGE_KEYS.MAINTENANCE_EQUIPMENT, []),
       securityReports: getFromStorage(STORAGE_KEYS.SECURITY_REPORTS, []),

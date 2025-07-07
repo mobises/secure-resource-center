@@ -134,6 +134,9 @@ export const useAuth = () => {
       return 'role' in user && user.role === 'admin';
     }
     
+    // Si es admin regular, tiene acceso a todas las secciones
+    if ('role' in user && user.role === 'admin') return true;
+    
     if ('sectionAccess' in user) {
       return user.sectionAccess[section as keyof typeof user.sectionAccess];
     }

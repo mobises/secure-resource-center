@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +19,7 @@ const EnhancedVehicleConfig = () => {
     licensePlate: '',
     type: '',
     capacity: 5,
+    maxReservationDays: 7,
     status: 'available' as const
   });
 
@@ -36,7 +36,6 @@ const EnhancedVehicleConfig = () => {
       return;
     }
 
-    // Create vehicle with all required properties matching the expected type
     const vehicleForHook = {
       id: Date.now().toString(),
       name: newVehicle.name,
@@ -46,6 +45,7 @@ const EnhancedVehicleConfig = () => {
       licensePlate: newVehicle.licensePlate,
       type: newVehicle.type,
       capacity: newVehicle.capacity,
+      maxReservationDays: newVehicle.maxReservationDays,
       status: 'available' as const
     };
 
@@ -59,6 +59,7 @@ const EnhancedVehicleConfig = () => {
       licensePlate: '',
       type: '',
       capacity: 5,
+      maxReservationDays: 7,
       status: 'available'
     });
 
@@ -84,7 +85,6 @@ const EnhancedVehicleConfig = () => {
   const handleSaveEdit = () => {
     if (!editingVehicle) return;
 
-    // Create vehicle with all required properties matching the expected type
     const vehicleForHook = {
       id: editingVehicle.id,
       name: editingVehicle.name || `${editingVehicle.brand || ''} ${editingVehicle.model || ''}`,
@@ -94,6 +94,7 @@ const EnhancedVehicleConfig = () => {
       licensePlate: editingVehicle.licensePlate || '',
       type: editingVehicle.type,
       capacity: editingVehicle.capacity || 5,
+      maxReservationDays: editingVehicle.maxReservationDays,
       status: editingVehicle.status
     };
 
@@ -192,6 +193,18 @@ const EnhancedVehicleConfig = () => {
               placeholder="5"
             />
           </div>
+          <div>
+            <Label htmlFor="maxReservationDays">Máximo de días</Label>
+            <Input
+              id="maxReservationDays"
+              type="number"
+              value={newVehicle.maxReservationDays}
+              onChange={(e) => setNewVehicle({...newVehicle, maxReservationDays: parseInt(e.target.value)})}
+              min="1"
+              max="365"
+              placeholder="7"
+            />
+          </div>
         </div>
         <Button onClick={handleAddVehicle} className="mt-4">
           <Plus className="h-4 w-4 mr-2" />
@@ -258,6 +271,16 @@ const EnhancedVehicleConfig = () => {
                       min="1"
                     />
                   </div>
+                  <div>
+                    <Label>Máximo de días</Label>
+                    <Input
+                      type="number"
+                      value={editingVehicle.maxReservationDays || 7}
+                      onChange={(e) => setEditingVehicle({...editingVehicle, maxReservationDays: parseInt(e.target.value)})}
+                      min="1"
+                      max="365"
+                    />
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button onClick={handleSaveEdit}>Guardar</Button>
@@ -277,6 +300,9 @@ const EnhancedVehicleConfig = () => {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Capacidad: {vehicle.capacity || 'No especificada'}</p>
+                    <p className="text-sm text-gray-600">Máx. días: {vehicle.maxReservationDays || 7}</p>
+                  </div>
+                  <div>
                     <span className={`px-2 py-1 rounded-full text-xs ${
                       vehicle.status === 'available' 
                         ? 'bg-green-100 text-green-800' 
