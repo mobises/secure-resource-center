@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
 import { useSectionUsers, useRoomReservations, useVehicles, useVehicleReservations } from '@/hooks/useLocalData';
+import { useNotifications } from '@/hooks/useNotifications';
+import NotificationCenter from './NotificationCenter';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -18,6 +20,7 @@ const Dashboard = () => {
   const { data: roomReservations } = useRoomReservations();
   const { data: vehicles } = useVehicles();
   const { data: vehicleReservations } = useVehicleReservations();
+  const { notifications, markAsRead, markAllAsRead, getUnreadCount } = useNotifications();
 
   // Verificar si el usuario es administrador de alguna sección
   const currentSectionUser = sectionUsers.find(su => su.userId === user?.userId);
@@ -133,6 +136,13 @@ const Dashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Centro de Notificaciones */}
+        <NotificationCenter
+          notifications={notifications}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
+        />
+
         {/* Actividad reciente */}
         <Card>
           <CardHeader>
@@ -162,56 +172,56 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Información del sistema */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5" />
-              Estado del Sistema
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-green-900">
-                    Sistema funcionando correctamente
-                  </p>
-                  <p className="text-xs text-green-700">
-                    Todos los módulos operativos
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
-                <div>
-                  <p className="text-sm font-medium text-blue-900">
-                    Datos sincronizados
-                  </p>
-                  <p className="text-xs text-blue-700">
-                    Almacenamiento local activo
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm font-medium text-gray-900 mb-2">
-                  Información de Sesión:
+      {/* Información del sistema */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5" />
+            Estado del Sistema
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-green-900">
+                  Sistema funcionando correctamente
                 </p>
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p><strong>Usuario:</strong> {user?.name}</p>
-                  <p><strong>ID:</strong> {user?.userId}</p>
-                  <p><strong>Rol:</strong> Administrador</p>
-                  <p><strong>Último login:</strong> {new Date().toLocaleString('es-ES')}</p>
-                </div>
+                <p className="text-xs text-green-700">
+                  Todos los módulos operativos
+                </p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            
+            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+              <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-blue-900">
+                  Datos sincronizados
+                </p>
+                <p className="text-xs text-blue-700">
+                  Almacenamiento local activo
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 bg-gray-50 rounded-lg">
+              <p className="text-sm font-medium text-gray-900 mb-2">
+                Información de Sesión:
+              </p>
+              <div className="text-xs text-gray-600 space-y-1">
+                <p><strong>Usuario:</strong> {user?.name}</p>
+                <p><strong>ID:</strong> {user?.userId}</p>
+                <p><strong>Rol:</strong> Administrador</p>
+                <p><strong>Último login:</strong> {new Date().toLocaleString('es-ES')}</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

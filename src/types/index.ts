@@ -64,6 +64,7 @@ export interface RoomReservation {
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
   createdAt: string;
   attendees?: number;
+  isNew?: boolean; // Para notificaciones
 }
 
 export interface Reservation {
@@ -133,6 +134,9 @@ export interface Vehicle {
   maxReservationDays?: number;
   currentKilometers?: number;
   fuelType?: 'electric' | 'gasoline' | 'diesel' | 'hybrid' | 'pluginHybrid';
+  maxKmPerTank?: number; // Km máximos por depósito
+  batteryPercentage?: number; // Para vehículos eléctricos
+  fuelPercentage?: number; // Para vehículos no eléctricos
 }
 
 export interface VehicleReservation {
@@ -144,17 +148,31 @@ export interface VehicleReservation {
   startDate: string;
   endDate: string;
   purpose: string;
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed';
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled' | 'completed' | 'active';
   createdAt: string;
   destination?: string;
   driverLicense?: string; // Mantenemos para compatibilidad
   licensePlate?: string; // Matrícula del vehículo
   startTime?: string;
   endTime?: string;
-  startKilometers?: number;
-  endKilometers?: number;
-  fuelPercentage?: number; // Para vehículos no eléctricos
-  batteryPercentage?: number; // Para vehículos eléctricos
+  initialKilometers?: number; // Km iniciales
+  finalKilometers?: number; // Km finales
+  initialBatteryPercentage?: number; // Batería inicial para eléctricos
+  finalBatteryPercentage?: number; // Batería final para eléctricos
+  initialFuelPercentage?: number; // Combustible inicial para no eléctricos
+  finalFuelPercentage?: number; // Combustible final para no eléctricos
+  isNew?: boolean; // Para notificaciones
+  isClosed?: boolean; // Si la reserva está cerrada
+}
+
+export interface AdminNotification {
+  id: string;
+  type: 'room_reservation' | 'vehicle_reservation';
+  title: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
+  relatedId: string; // ID de la reserva relacionada
 }
 
 export interface StockMovement {

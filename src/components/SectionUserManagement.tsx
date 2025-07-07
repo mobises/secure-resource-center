@@ -22,12 +22,13 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
     stockAccess: false,
     maintenanceRole: null as 'admin' | 'user' | null,
     maintenanceAccess: false,
-    roomsRole: null as 'admin' | 'user' | null,
-    roomsAccess: false,
+    roomsRole: 'user' as 'admin' | 'user' | null,
+    roomsAccess: true,
     securityRole: null as 'admin' | 'user' | null,
     securityAccess: false,
-    vehiclesRole: null as 'admin' | 'user' | null,
-    vehiclesAccess: false
+    vehiclesRole: 'user' as 'admin' | 'user' | null,
+    vehiclesAccess: true,
+    dashboardAccess: true
   });
 
   const [editingUser, setEditingUser] = useState<SectionUser | null>(null);
@@ -42,12 +43,23 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
       return;
     }
 
+    // Verificar si el ID de usuario ya existe
+    const existingUser = users.find(u => u.userId === newUser.userId);
+    if (existingUser) {
+      toast({
+        title: "Error",
+        description: "ID de usuario ya existe. Por favor, elige otro ID.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const user: SectionUser = {
       id: Date.now().toString(),
       name: newUser.name,
       userId: newUser.userId,
       password: newUser.password,
-      dashboardAccess: true,
+      dashboardAccess: newUser.dashboardAccess,
       lastPasswordChange: new Date().toISOString(),
       sectionRoles: {
         stock: newUser.stockRole,
@@ -74,12 +86,13 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
       stockAccess: false,
       maintenanceRole: null,
       maintenanceAccess: false,
-      roomsRole: null,
-      roomsAccess: false,
+      roomsRole: 'user',
+      roomsAccess: true,
       securityRole: null,
       securityAccess: false,
-      vehiclesRole: null,
-      vehiclesAccess: false
+      vehiclesRole: 'user',
+      vehiclesAccess: true,
+      dashboardAccess: true
     });
 
     toast({
@@ -238,6 +251,18 @@ const SectionUserManagement: React.FC<SectionUserManagementProps> = ({ users, on
                 onChange={(e) => setNewUser({...newUser, password: e.target.value})}
                 placeholder="Contraseña"
               />
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="dashboardAccess"
+                checked={newUser.dashboardAccess}
+                onChange={(e) => setNewUser({...newUser, dashboardAccess: e.target.checked})}
+              />
+              <Label htmlFor="dashboardAccess">Acceso al Dashboard</Label>
             </div>
           </div>
 
