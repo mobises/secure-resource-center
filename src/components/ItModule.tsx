@@ -89,10 +89,7 @@ const ItModule = () => {
 
         <div className="mt-6">
           {activeTab === 'users' && (
-            <SectionUserManagement 
-              users={sectionUsers}
-              onUpdateUsers={updateSectionUsers}
-            />
+            <SectionUserManagement />
           )}
 
           {activeTab === 'passwords' && (
