@@ -5,10 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, FileText } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Plus, FileText, CalendarIcon } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { SecurityReport, SecurityReportSection, SecurityReportResponse } from "@/types";
 import { useSecurityReportSections } from "@/hooks/useLocalData";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface SecurityReportFormProps {
   onAddReport: (report: SecurityReport) => void;
@@ -17,6 +22,7 @@ interface SecurityReportFormProps {
 const SecurityReportForm: React.FC<SecurityReportFormProps> = ({ onAddReport }) => {
   const { data: sections } = useSecurityReportSections();
   const [responses, setResponses] = useState<{ [key: string]: number }>({});
+  const [reportDate, setReportDate] = useState<Date | undefined>(new Date());
   const [reportData, setReportData] = useState({
     type: '',
     description: '',
@@ -71,7 +77,7 @@ const SecurityReportForm: React.FC<SecurityReportFormProps> = ({ onAddReport }) 
 
     const report: SecurityReport = {
       id: Date.now().toString(),
-      reportDate: new Date().toISOString().split('T')[0],
+      reportDate: reportDate ? reportDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
       createdAt: new Date().toISOString(),
       createdBy: 'Usuario Actual',
       totalScore,
@@ -87,6 +93,7 @@ const SecurityReportForm: React.FC<SecurityReportFormProps> = ({ onAddReport }) 
     
     // Reset form
     setResponses({});
+    setReportDate(new Date());
     setReportData({
       type: '',
       description: '',
@@ -138,7 +145,33 @@ const SecurityReportForm: React.FC<SecurityReportFormProps> = ({ onAddReport }) 
 
       <Card className="p-6">
         <div className="space-y-4 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <Label htmlFor="reportDate">Fecha del Reporte</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !reportDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {reportDate ? format(reportDate, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={reportDate}
+                    onSelect={setReportDate}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
             <div>
               <Label htmlFor="type">Tipo de Reporte</Label>
               <Input

@@ -16,7 +16,7 @@ const RoomCalendarView = () => {
   const { data: reservations, updateData: updateReservations } = useRoomReservations();
   const { data: scheduleConfig } = useRoomScheduleConfig();
   
-  const [viewType, setViewType] = useState<'daily' | 'weekly' | 'monthly'>('weekly');
+  const [viewType, setViewType] = useState<'weekly' | 'monthly'>('weekly');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [selectedRoom, setSelectedRoom] = useState<string>('');
@@ -158,9 +158,7 @@ const RoomCalendarView = () => {
 
   const navigateDate = (direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate);
-    if (viewType === 'daily') {
-      newDate.setDate(currentDate.getDate() + (direction === 'next' ? 1 : -1));
-    } else if (viewType === 'weekly') {
+    if (viewType === 'weekly') {
       newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7));
     } else {
       newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1));
@@ -335,12 +333,6 @@ const RoomCalendarView = () => {
         
         <div className="flex gap-2">
           <Button
-            variant={viewType === 'daily' ? 'default' : 'outline'}
-            onClick={() => setViewType('daily')}
-          >
-            Diario
-          </Button>
-          <Button
             variant={viewType === 'weekly' ? 'default' : 'outline'}
             onClick={() => setViewType('weekly')}
           >
@@ -361,9 +353,7 @@ const RoomCalendarView = () => {
         </Button>
         
         <h2 className="text-lg font-semibold">
-          {viewType === 'daily' 
-            ? currentDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-            : viewType === 'weekly'
+          {viewType === 'weekly'
             ? `Semana del ${formatDate(getDatesInWeek(currentDate)[0])}`
             : currentDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
           }
@@ -374,7 +364,6 @@ const RoomCalendarView = () => {
         </Button>
       </div>
 
-      {viewType === 'daily' && renderDailyView()}
       {viewType === 'weekly' && renderWeeklyView()}
       {viewType === 'monthly' && renderMonthlyView()}
 

@@ -11,9 +11,10 @@ import {
   Bell
 } from "lucide-react";
 import { useAuth } from '@/hooks/useAuth';
-import { useSectionUsers, useRoomReservations, useVehicles, useVehicleReservations } from '@/hooks/useLocalData';
+import { useSectionUsers, useRoomReservations, useVehicles, useVehicleReservations, useRoomConfigs } from '@/hooks/useLocalData';
 import { useNotifications } from '@/hooks/useNotifications';
 import NotificationCenter from './NotificationCenter';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ const Dashboard = () => {
   const { data: roomReservations } = useRoomReservations();
   const { data: vehicles } = useVehicles();
   const { data: vehicleReservations } = useVehicleReservations();
+  const { data: roomConfigs } = useRoomConfigs();
   const { notifications, markAsRead, markAllAsRead, getUnreadCount } = useNotifications();
 
   // Verificar si el usuario es administrador de alguna sección
@@ -43,15 +45,17 @@ const Dashboard = () => {
 
   // Calcular estadísticas reales
   const today = new Date().toISOString().split('T')[0];
-  const activeRoomReservations = roomReservations.filter(r => 
+  const todayRoomReservations = roomReservations.filter(r => 
     r.date === today && r.status === 'approved'
-  ).length;
+  );
+  const activeRoomReservations = todayRoomReservations.length;
 
   const todayVehicleReservations = vehicleReservations.filter(vr => 
     vr.startDate <= today && vr.endDate >= today && vr.status === 'approved'
   ).length;
 
-  const availableVehicles = vehicles.filter(v => v.status === 'available').length - todayVehicleReservations;
+  const availableVehiclesList = vehicles.filter(v => v.status === 'available');
+  const availableVehicles = availableVehiclesList.length - todayVehicleReservations;
   const unreadNotifications = getUnreadCount();
 
   const connectedUsers = 1; // Usuario actual conectado - en implementación real sería dinámico
@@ -132,26 +136,63 @@ const Dashboard = () => {
       </div>
 
       {/* Estadísticas principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+      <TooltipProvider>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            const isRoomStat = stat.title === "Reservas Salas Hoy";
+            const isVehicleStat = stat.title === "Vehículos Disponibles";
+            
+            const roomReservationDetails = todayRoomReservations.map(r => {
+              const room = roomConfigs.find(rc => rc.id === r.roomId);
+              return `${room?.name || r.roomName}: ${r.startTime}-${r.endTime} (${r.purpose})`;
+            });
+            
+            const vehicleNames = availableVehiclesList.map(v => v.name);
+            
+            const tooltipContent = isRoomStat 
+              ? roomReservationDetails.length > 0 
+                ? roomReservationDetails.join('\n')
+                : 'No hay reservas de salas para hoy'
+              : isVehicleStat
+                ? vehicleNames.length > 0
+                  ? vehicleNames.join(', ')
+                  : 'No hay vehículos disponibles'
+                : null;
+            
+            const cardContent = (
+              <Card key={index}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                      <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                    </div>
+                    <div className={`p-3 rounded-full ${stat.bgColor}`}>
+                      <Icon className={`h-6 w-6 ${stat.color}`} />
+                    </div>
                   </div>
-                  <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                    <Icon className={`h-6 w-6 ${stat.color}`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                </CardContent>
+              </Card>
+            );
+            
+            if (tooltipContent) {
+              return (
+                <Tooltip key={index}>
+                  <TooltipTrigger asChild>
+                    {cardContent}
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs whitespace-pre-line">
+                    <p>{tooltipContent}</p>
+                  </TooltipContent>
+                </Tooltip>
+              );
+            }
+            
+            return cardContent;
+          })}
+        </div>
+      </TooltipProvider>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Centro de Notificaciones */}
