@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { AdminNotification } from '@/types';
+import { useAuth } from '@/hooks/useAuth';
 
 const NOTIFICATIONS_KEY = 'admin_notifications';
 
 export const useNotifications = () => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
 
   useEffect(() => {
@@ -35,6 +37,9 @@ export const useNotifications = () => {
 
   // Auto-add notifications for new room reservations
   const addRoomReservationNotification = (reservationId: string, roomName: string, userName: string) => {
+    // Solo agregar notificación si es generada por otro usuario
+    if (user?.name === userName) return;
+    
     addNotification({
       type: 'room_reservation',
       title: 'Nueva reserva de sala',
@@ -45,6 +50,9 @@ export const useNotifications = () => {
 
   // Auto-add notifications for new vehicle reservations
   const addVehicleReservationNotification = (reservationId: string, vehicleName: string, userName: string) => {
+    // Solo agregar notificación si es generada por otro usuario
+    if (user?.name === userName) return;
+    
     addNotification({
       type: 'vehicle_reservation',
       title: 'Nueva reserva de vehículo',

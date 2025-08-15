@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { LogOut, Menu, X, Calendar, Car, Shield, Computer, Database } from "lucide-react";
 import { User, SectionUser } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,15 +21,19 @@ const Layout: React.FC<LayoutProps> = ({
   onModuleChange 
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { hasAccess } = useAuth();
 
-  const modules = [
-    { id: 'dashboard', name: 'Dashboard', icon: Menu },
-    { id: 'rooms', name: 'Reserva de Salas', icon: Calendar },
-    { id: 'vehicles', name: 'Vehículos', icon: Car },
-    { id: 'security', name: 'Seguridad', icon: Shield },
-    { id: 'it', name: 'IT', icon: Computer },
-    { id: 'data', name: 'Gestión de Datos', icon: Database },
+  const allModules = [
+    { id: 'dashboard', name: 'Dashboard', icon: Menu, section: 'dashboard' as const },
+    { id: 'rooms', name: 'Reserva de Salas', icon: Calendar, section: 'rooms' as const },
+    { id: 'vehicles', name: 'Vehículos', icon: Car, section: 'vehicles' as const },
+    { id: 'security', name: 'Seguridad', icon: Shield, section: 'security' as const },
+    { id: 'it', name: 'IT', icon: Computer, section: 'it' as const },
+    { id: 'data', name: 'Gestión de Datos', icon: Database, section: 'dataManagement' as const },
   ];
+
+  // Filter modules based on user access
+  const modules = allModules.filter(module => hasAccess(module.section));
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

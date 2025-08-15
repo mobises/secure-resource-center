@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, Upload, Trash2, Database, Play, LogIn } from "lucide-react";
+import { Download, Upload, Trash2, Database, Play, LogIn, Settings } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { dataService } from "@/services/dataService";
 import { useAuth } from "@/hooks/useAuth";
@@ -117,9 +117,15 @@ const DataManager = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Database className="h-6 w-6" />
-        <h2 className="text-2xl font-bold">Gestión de Datos Locales</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Database className="h-6 w-6" />
+          <h2 className="text-2xl font-bold">Gestión de Datos Locales</h2>
+        </div>
+        <Button variant="outline">
+          <Settings className="h-4 w-4 mr-2" />
+          Configurar Acceso
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

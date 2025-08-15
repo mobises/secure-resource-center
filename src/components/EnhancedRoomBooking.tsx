@@ -83,20 +83,53 @@ const EnhancedRoomBooking = () => {
       }
     }
 
+    // Find first available slot after reservations
+    const [configEndHour, configEndMinute] = endTime.split(':').map(Number);
+    const configEndTotalMinutes = configEndHour * 60 + configEndMinute;
+    
+    const existingReservations = reservations.filter(r => 
+      r.roomId === roomId && 
+      r.date === selectedDate && 
+      r.status === 'approved'
+    ).sort((a, b) => {
+      const aStartMinutes = parseInt(a.startTime.split(':')[0]) * 60 + parseInt(a.startTime.split(':')[1]);
+      const bStartMinutes = parseInt(b.startTime.split(':')[0]) * 60 + parseInt(b.startTime.split(':')[1]);
+      return aStartMinutes - bStartMinutes;
+    });
+
+    // Find first empty slot
+    let firstAvailableStart = startTime;
+    for (const reservation of existingReservations) {
+      const [resEndHour, resEndMinute] = reservation.endTime.split(':').map(Number);
+      const resEndMinutes = resEndHour * 60 + resEndMinute;
+      const [currentStartHour, currentStartMinute] = firstAvailableStart.split(':').map(Number);
+      const currentStartMinutes = currentStartHour * 60 + currentStartMinute;
+      
+      if (currentStartMinutes < resEndMinutes) {
+        // Round up to next 15-minute interval after this reservation
+        const nextSlot = Math.ceil(resEndMinutes / 15) * 15;
+        const nextHour = Math.floor(nextSlot / 60);
+        const nextMinute = nextSlot % 60;
+        firstAvailableStart = `${nextHour.toString().padStart(2, '0')}:${nextMinute.toString().padStart(2, '0')}`;
+      }
+    }
+    
+    startTime = firstAvailableStart;
+
     const [startHour, startMinute] = startTime.split(':').map(Number);
     const [endHour, endMinute] = endTime.split(':').map(Number);
     
     const allSlots = generateTimeSlots(startHour, startMinute, endHour, endMinute);
     
     // Filter out unavailable times based on existing reservations
-    const dayReservations = reservations.filter(r => 
+    const dayReservationsList = reservations.filter(r => 
       r.roomId === roomId && 
       r.date === selectedDate && 
       r.status === 'approved'
     );
 
     const availableSlots = allSlots.filter(slot => {
-      return !dayReservations.some(reservation => {
+      return !dayReservationsList.some(reservation => {
         const [slotHour, slotMinute] = slot.split(':').map(Number);
         const slotMinutes = slotHour * 60 + slotMinute;
         
@@ -117,10 +150,11 @@ const EnhancedRoomBooking = () => {
       const times = getAvailableTimesForDate(newReservation.date, newReservation.roomId);
       setAvailableTimes(times);
       
-      // Set default end time to last available time
-      if (times.length > 0 && !newReservation.startTime) {
+      // Set default start time to first available time and end time to last available time
+      if (times.length > 0) {
         setNewReservation(prev => ({
           ...prev,
+          startTime: prev.startTime || times[0],
           endTime: times[times.length - 1]
         }));
       }
