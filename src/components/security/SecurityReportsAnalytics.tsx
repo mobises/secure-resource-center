@@ -34,7 +34,7 @@ const SecurityReportsAnalytics: React.FC<SecurityReportsAnalyticsProps> = ({ rep
       let totalScore = 0;
       const sectionScoresByReport: { [key: string]: number } = {};
 
-      if (report.responses) {
+      if (report.responses && Array.isArray(report.responses)) {
         report.responses.forEach(response => {
           const score = response.answer || 0;
           totalScore += score;
