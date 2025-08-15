@@ -29,18 +29,20 @@ const ItModule = () => {
       maintenance: 'admin' as const,
       rooms: 'admin' as const,
       security: 'admin' as const,
-      vehicles: 'admin' as const
+      vehicles: 'admin' as const,
+      it: 'admin' as const
     },
     sectionAccess: {
       stock: true,
       maintenance: true,
       rooms: true,
       security: true,
-      vehicles: true
+      vehicles: true,
+      it: true
     }
   };
   
-  const getUserRole = (section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles') => {
+  const getUserRole = (section: 'stock' | 'maintenance' | 'rooms' | 'security' | 'vehicles' | 'it') => {
     return currentUser.sectionRoles[section];
   };
 

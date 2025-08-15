@@ -22,14 +22,16 @@ const SectionUserManagement = () => {
       maintenance: null as 'admin' | 'user' | null,
       rooms: 'user' as 'admin' | 'user' | null,
       security: null as 'admin' | 'user' | null,
-      vehicles: 'user' as 'admin' | 'user' | null
+      vehicles: 'user' as 'admin' | 'user' | null,
+      it: null as 'admin' | 'user' | null
     },
     sectionAccess: {
       stock: false,
       maintenance: false,
       rooms: true,
       security: false,
-      vehicles: true
+      vehicles: true,
+      it: false
     }
   });
 
@@ -92,7 +94,7 @@ const SectionUserManagement = () => {
       password: newUser.password,
       dashboardAccess: newUser.dashboardAccess,
       lastPasswordChange: new Date().toISOString(),
-      sectionRoles: { ...newUser.sectionRoles },
+      sectionRoles: { ...newUser.sectionRoles, it: null },
       sectionAccess: { ...newUser.sectionAccess }
     };
 
@@ -107,14 +109,16 @@ const SectionUserManagement = () => {
         maintenance: null,
         rooms: 'user',
         security: null,
-        vehicles: 'user'
+        vehicles: 'user',
+        it: null
       },
       sectionAccess: {
         stock: false,
         maintenance: false,
         rooms: true,
         security: false,
-        vehicles: true
+        vehicles: true,
+        it: false
       }
     });
 
@@ -217,7 +221,7 @@ const SectionUserManagement = () => {
               <Label htmlFor="dashboardAccess">Acceso al Dashboard</Label>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
               {Object.entries(newUser.sectionAccess).map(([section, hasAccess]) => (
                 <div key={section} className="space-y-2">
                   <Label className="text-sm font-medium capitalize">{section}</Label>
@@ -330,7 +334,7 @@ const SectionUserManagement = () => {
                       <Label>Acceso al Dashboard</Label>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
                       {Object.entries(editingUser.sectionAccess).map(([section, hasAccess]) => (
                         <div key={section} className="space-y-2">
                           <Label className="text-sm font-medium capitalize">{section}</Label>
@@ -416,7 +420,7 @@ const SectionUserManagement = () => {
                         </Button>
                       </div>
                     </div>
-                    <div className="grid grid-cols-5 gap-4 text-xs">
+                    <div className="grid grid-cols-6 gap-4 text-xs">
                       {Object.entries(user.sectionAccess).map(([section, hasAccess]) => (
                         <div key={section}>
                           <span className="capitalize font-medium">{section}:</span>

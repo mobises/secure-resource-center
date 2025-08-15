@@ -30,6 +30,7 @@ export interface SectionUser {
     rooms: 'admin' | 'user' | null;
     security: 'admin' | 'user' | null;
     vehicles: 'admin' | 'user' | null;
+    it: 'admin' | 'user' | null;
   };
   sectionAccess: {
     stock: boolean;
@@ -37,6 +38,7 @@ export interface SectionUser {
     rooms: boolean;
     security: boolean;
     vehicles: boolean;
+    it: boolean;
   };
 }
 

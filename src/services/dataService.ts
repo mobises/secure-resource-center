@@ -104,14 +104,16 @@ const defaultSectionUsers: SectionUser[] = [
       maintenance: 'admin',
       rooms: 'admin',
       security: 'admin',
-      vehicles: 'admin'
+      vehicles: 'admin',
+      it: 'admin'
     },
     sectionAccess: {
       stock: true,
       maintenance: true,
       rooms: true,
       security: true,
-      vehicles: true
+      vehicles: true,
+      it: true
     }
   },
   {
@@ -126,14 +128,16 @@ const defaultSectionUsers: SectionUser[] = [
       maintenance: null,
       rooms: 'user',
       security: null,
-      vehicles: 'user'
+      vehicles: 'user',
+      it: null
     },
     sectionAccess: {
       stock: true,
       maintenance: false,
       rooms: true,
       security: false,
-      vehicles: true
+      vehicles: true,
+      it: false
     }
   }
 ];

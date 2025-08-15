@@ -1,7 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { 
   Users, 
   Calendar, 
@@ -19,6 +22,7 @@ import NotificationCenter from './NotificationCenter';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Dashboard = () => {
+  const [isAccessConfigOpen, setIsAccessConfigOpen] = useState(false);
   const { user, isAdmin } = useAuth();
   const { data: sectionUsers } = useSectionUsers();
   const { data: roomReservations } = useRoomReservations();
@@ -41,7 +45,10 @@ const Dashboard = () => {
           <p className="text-gray-600 mb-4">
             Utiliza el menú de navegación para acceder a los diferentes módulos del sistema.
           </p>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => setIsAccessConfigOpen(true)}
+          >
             <Settings className="h-4 w-4 mr-2" />
             Configurar Acceso
           </Button>
@@ -130,7 +137,10 @@ const Dashboard = () => {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Panel de Administración</h1>
         <div className="flex items-center gap-4">
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => setIsAccessConfigOpen(true)}
+          >
             <Settings className="h-4 w-4 mr-2" />
             Configurar Acceso
           </Button>
@@ -295,7 +305,32 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
-      )}
+       )}
+
+      {/* Access Configuration Dialog */}
+      <Dialog open={isAccessConfigOpen} onOpenChange={setIsAccessConfigOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Configurar Acceso al Dashboard</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="dashboard-admin"
+                checked={isAnyAdmin || false}
+                disabled
+              />
+              <Label htmlFor="dashboard-admin">
+                Acceso como Administrador
+                {isAnyAdmin && <span className="text-sm text-green-600 ml-2">(Activo)</span>}
+              </Label>
+            </div>
+            <div className="text-sm text-gray-600">
+              La configuración de permisos se gestiona desde el módulo IT - Gestión de Usuarios.
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

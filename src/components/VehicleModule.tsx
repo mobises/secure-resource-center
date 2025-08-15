@@ -37,14 +37,16 @@ const VehicleModule = () => {
       maintenance: null,
       rooms: null,
       security: null,
-      vehicles: 'user' as const
+      vehicles: 'user' as const,
+      it: null
     },
     sectionAccess: {
       stock: false,
       maintenance: false,
       rooms: false,
       security: false,
-      vehicles: true
+      vehicles: true,
+      it: false
     }
   };
 
